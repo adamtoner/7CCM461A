@@ -84,21 +84,25 @@ It is often the aim to maximise the likelihood function so that we find the para
 
 The Bayesian and frequentist frameworks for statistics will be discussed in more detail in part II of this thesis, but it is worth mentioning now that the likelihood function plays a fundamental role in both. In fact, the maximum likelihood estimate is a special case of a maximum a posteriori estimation (MAP) in which the parameters follow a uniform prior distribution. See section ---- for more information.
 
-Cox \fcite{cox72} introduced what he referred to as a conditional likelihood which was a likelihood function conditioned on the set ${t_i}$ of instants at which failure occurs. The reasoning for this is there is no information about the hazard other than the times at which and multiplicities with which failure occurs. 
+Cox \fcite{cox72} introduced what he misleadingly referred to as a conditional likelihood which was a likelihood function for inference about $\Beta$ conditioned on the set ${t_i}$ of instants at which failure occurs. The logic here is no information about the hazard is contributed at any point other than those times at which failure occurs. 
 
-I will first consider the case of continuous time; $m_i=1\forall i$. For each failure at time $t_i$, the probability that the failure which occurs is the one observed is 
+I will first consider the case of continuous time ($m_i=1\forall i$) as Cox \fcite{cox72} did. For each failure at time $t_i$, the probability that the failure which occurs is the one observed is 
 
 \begin{equation}
     \frac{\lambda(t_i; \z_i)dt}{\sum_{j\in\R_i}\lambda(t_i; \z_{j})dt} = 
     \frac{\lambda_0(t_i)e^{\z_i\Beta}}{\sum_{j\in\R_i}\lambda_0(t_i)e^{\z_j\Beta}} = \frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}.
 \end{equation}
 
-This is the ratio of the hazard of the individual on which failure was observed over the sum of hazards across all the individuals who are at risk at time $t_i$. Notice that the baseline hazard cancels out leaving an equation which only varies with $\Beta$.
+This is the ratio of the hazard of the individual on which failure was observed over the sum of hazards across all the individuals who are at risk at time $t_i$. Notice that the baseline hazard cancels out leaving an equation which only varies with $\Beta$. The partial likelihood is then:
 
-The log-likelihood likelihood function for the model conditioned on ${t_i}$ is then given by taking the natural logarithm of the above function summing over all events as follows:
+\begin{equation}
+    L(\Beta) = \prod_{i=1}^k \frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}
+\end{equation}
+
+The log partial likelihood function for the model conditioned on ${t_i}$ is then given by taking the natural logarithm of the above function summing over all events as follows:
 
 \begin{align}
-    L(\Beta) &= \sum_{i=1}^k \log\bigg(\frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}\bigg)\\
+    l(\Beta) &= \sum_{i=1}^k \log\bigg(\frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}\bigg)\\
     &= \sum_{i=1}^k \bigg( \log(e^{\z_i\Beta}) - \log(\sum_{j\in\R_i}e^{\z_j\Beta})\bigg)\\
     &= \sum_{i=1}^k \z_i\Beta - \sum_{i=1}^k \log(\sum_{j\in\R_i}e^{\z_j\Beta})
 \end{align}
