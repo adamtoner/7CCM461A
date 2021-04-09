@@ -1,0 +1,56 @@
+\usepackage{graphicx}
+\usepackage{amsmath, amsfonts, amsthm, bbm}
+\usepackage{pgfplots}
+\usepackage[all]{xy}
+\pgfplotsset{width=\columnwidth,compat=1.13}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{titling}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{setspace}
+\usepackage{mathrsfs}
+\usepackage[citestyle=numeric,bibstyle=authortitle]{biblatex}
+
+\addbibresource{refs.bib}
+
+\graphicspath{{images/}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{assumption}{Assumption}
+
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\dbyd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\vsig}{\vec{\sigma}}
+\newcommand{\R}{\mathscr{R}}
+\newcommand{\D}{\mathscr{D}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathscr{F}}
+\newcommand{\I}{\mathscr{I}}
+\newcommand{\X}{\textbf{X}}
+\newcommand{\x}{\textbf{x}}
+\newcommand{\z}{\textbf{z}}
+\newcommand{\s}{\textbf{s}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\comp}{\circ}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\u}{{u_1}}
+\renewcommand{\v}{{u_2}}
+\newcommand{\bref}[1]{(\ref{#1})}
+\newcommand{\fcite}[1]{(\citeyear{#1})\textsuperscript{\cite{#1}}}
+\newcommand{\ucite}[1]{\textsuperscript{\cite{#1}}}
+\newcommand{\laplace}{\Delta}
+\renewcommand{\line}[2]{{\overrightarrow{#1,#2}}}
+\newcommand{\Beta}{\boldsymbol{\beta}}
+\newcommand{\datum}{(y_i, \x_i, \delta_i)}
+
+\newcommand{\todo}[1]{{\color{red}\textbf{TODO!: #1}}}
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+
+\renewcommand{\.}{\,.}

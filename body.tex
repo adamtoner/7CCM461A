@@ -1,0 +1,213 @@
+\newpage
+\part{The Model}
+
+The Cox Proportional Hazards Model is one of the most used statistical techniques in the world. It was introduced by Cox \fcite{cox72} with the aim of extending the results of Kaplan and Meier \fcite{kaplanmeier} "to the comparison of life tables and more generally to the incorporation of regression-like arguments into life-table analysis." Interestingly, these two papers are two of the most cited papers in statistics according to Ryan and Woodall \fcite{ryanwoodall}. So why is the Cox model so popular?
+
+The Cox model is very attractive to statisticians because it is semi-parametric. What this effectively means is the hazard is divided into a non-parametric baseline hazard (which can be entirely arbitrary and time-dependent) which is common across all subjects and a relative risk parameter which describes the effects of covariates on the hazard.
+
+In this section I will describe the model in detail as proposed by Cox and explore surrounding methods and extensions. In section \ref{background} I will give a history of the statistics used by Cox in the development of the model as well as why it was developed, why it is so popular and how it is used. Following, in section \ref{assumptions}, I will take a moment to consider the assumptions made by the model, their implications and their limitations. Section \ref{partial-likelihood} will consider the partial likelihood function as discussed in Cox \fcite{cox75} and some methods of approximating and extending the original partial likelihood from Cox \fcite{cox72}. Section \ref{baseline} will deal with the motives and methods for estimation of the baseline hazard.
+
+\newpage
+\section{Background}\label{background}
+
+The Cox model implements the hazard function in terms of a baseline hazard and a function of the covariates as follows
+
+\begin{equation}\label{cox-hazard}
+    \lambda(t)=\lambda_0(t)e^{(\z\Beta)}.
+\end{equation}
+
+It is preferred over the logistic model for estimating survival time distributions as it considers the censored data and thus can obtain more information. 
+
+The general approach to solving the model would first estimate the regression coefficients, then choose or estimate a suitable distribution for the baseline hazard, and finally estimate the full survivor and hazard functions.
+
+The Cox model has two primary uses: variable impact estimation and survival time estimation. Of course, they impact one another but they are distinct.
+
+Covariate impact can be estimated using model selection for the Cox model, this is the main focus of this thesis and is discussed in depth in part II. By estimating the regression coefficients to give the best model possible, the extent to which each covariate impacts the model is predicted. This hopefully allows for interpretable results which are useful in many fields for discovering: impactful genomes in cancer epidemiology, impact of material density on machine part failure, impact of age on loan defaulting, et cetera. 
+
+Survival time or time-to-event estimation can be useful for predicting how long a patient is expected to live after a given diagnosis or the probability that a subject will default on their loan before repayment. The distributions underlying these regression estimations are of huge importance in medical, actuarial, business and engineering studies.
+
+\newpage
+\section{Assumptions and Extensions}\label{assumptions}
+
+As mentioned, the main attraction of the Cox model is the lack of assumption about the underlying hazard, which is allowed to be entirely arbitrary and take any form either parametric or non-parametric.
+
+\subsection{Proportional Hazards}
+
+The assumption of proportional hazards is the basis of the model introduced by Cox \cite{cox72}. If we have $n$ independent and identically distributed variables $T_i$ which have the hazard distribution defined by the Cox model, it is assumed that the hazard of one individual is proportional to the hazard of any other individual.
+
+It can easily be seen that every hazard function is proportional to the baseline hazard under the assumption by rearranging \bref{cox-hazard} to give
+
+\begin{equation}\label{prop-hazard}
+    \frac{\lambda(t)}{\lambda_0(t)}=\exp(\z\Beta).
+\end{equation}
+
+Clearly, the right side is not a function of $t$ and so the both sides are time invariant. The proportional hazards assumption holds if \bref{prop-hazard} holds.
+
+Consider as well the hazard function for two subjects $j$ and $j'$ defined as in \bref{cox-hazard}. Dividing one by the other to find the proportion gives
+
+\begin{equation}\label{hazard-ratio}
+    \frac{\lambda_j(t)}{\lambda_{j'}(t)} =\frac{\lambda_0(t)\exp(\z\Beta)}{\lambda_0(t)\exp(\z'\Beta)}=\frac{\exp(\z\Beta)}{\exp(\z'\Beta)}=e^{\Beta(\z-\z')},
+\end{equation}
+
+which is clearly time invariant on the right side and so must be time invariant on the left side as well. In layman's terms, this means if a subject 1 is twice as likely to have an event as subject 2, then this hazard ratio is constant, irrespective of time.
+
+A direct implication of proportional-hazards is the covariates and coefficients are time invariant. There are extensions of the Cox model discussed by Cox \fcite{cox72} to remove the proportional hazards assumption. These extensions allow for time-dependent covariates and time-dependent coefficients to be considered. The extensions to the Cox model normally involve using splines or fractional polynomials, however it has been suggested in some model comparison discussions, see Patel et al \fcite{compphaft}, that more consideration be given to other hazard structures, namely the AFT. Rubio et al \fcite{rubioetal} explores the various hazard structures and concludes that the AIC is a suitable method for selecting the hazard structure.
+
+\subsubsection{Testing Proportional Hazards}
+
+Equation \bref{hazard-ratio} is referred to as the hazard ratio and as mentioned is constant over time. We are able to test that all hazard ratios within the model are constant with time using both goodness-of-fit testing and graphical methods.
+
+There are many different graphical analysis methods to determine if the proportional hazards methods are likely to hold. Hess \fcite{hess95} suggests eight methods of graphical analysis, five of which are compared by Perrson \fcite{persson07} with the method proposed by Arjas \fcite{arjas88} in a simulation study using a Kolmogorov-Smirnov like maximum deviation criterion. Perrson \fcite{persson07} concludes that the Arjas plot is generally the preferred technique if the form of the hazard is anything but increasing, in which case either a smoothed plot of scaled
+Schoenfeld Residuals versus time or a smoothed plot of the ratio of
+log cumulative baseline hazard rates versus time are recommended.
+
+Despite the advantages of the aforementioned tests, one of the most commonly used methods is using Kaplan-Meier plots. The data is stratified and the K-M curves are plotted. The curves should be proportional, i.e. they should not cross or diverge.  
+
+Graphical analysis can prove useful but it is limited in that it is difficult to define objective rules as to what would be deemed to reject the proportional assumptions hypothesis. Most of these methods also will not work well with continuous covariates as the graphs become too cluttered.
+
+%talk about the scaled schoenfeld resiguals
+
+\subsubsection{Multiple Testing}
+
+It is worth mentioning the disadvantages of carrying out the tests described above. Of course it can be useful to check our assumptions hold, but by testing using schoenfeld residuals or another method, we must now also consider the error implicit in the preliminary test carried out. It is possible that we get a false result for our appropriate model test. If we get a false positive, we could be using the Cox PH model when the hazards are indeed not proportional. 
+
+\subsection{Time Dependent Coefficients}
+
+\subsection{Time Dependent Covariates}
+
+\newpage
+\section{Partial Likelihood}\label{partial-likelihood}
+
+A likelihood function is used to measure the goodness of fit of a statistical model based on a given set of data when the parameters of the model are unknown. It is a function of the parameters only and thus treats the random variables in the dataset as though they were fixed.
+
+It is often the aim to maximise the likelihood function so that we find the parameters which will best fit the model. This parameter vector which maximises the likelihood function is referred to as the maximum likelihood estimate (MLE). When computing the MLE, it is often convenient to use the log-likelihood function to convert the difficult to work with products into more friendly summations.
+
+The Bayesian and frequentist frameworks for statistics will be discussed in more detail in part II of this thesis, but it is worth mentioning now that the likelihood function plays a fundamental role in both. In fact, the maximum likelihood estimate is a special case of a maximum a posteriori estimation (MAP) in which the parameters follow a uniform prior distribution. See section ---- for more information.
+
+Cox \fcite{cox72} introduced what he referred to as a conditional likelihood which was a likelihood function conditioned on the set ${t_i}$ of instants at which failure occurs. The reasoning for this is there is no information about the hazard other than the times at which and multiplicities with which failure occurs. 
+
+I will first consider the case of continuous time; $m_i=1\forall i$. For each failure at time $t_i$, the probability that the failure which occurs is the one observed is 
+
+\begin{equation}
+    \frac{\lambda(t_i; \z_i)dt}{\sum_{j\in\R_i}\lambda(t_i; \z_{j})dt} = 
+    \frac{\lambda_0(t_i)e^{\z_i\Beta}}{\sum_{j\in\R_i}\lambda_0(t_i)e^{\z_j\Beta}} = \frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}.
+\end{equation}
+
+This is the ratio of the hazard of the individual on which failure was observed over the sum of hazards across all the individuals who are at risk at time $t_i$. Notice that the baseline hazard cancels out leaving an equation which only varies with $\Beta$.
+
+The log-likelihood likelihood function for the model conditioned on ${t_i}$ is then given by taking the natural logarithm of the above function summing over all events as follows:
+
+\begin{align}
+    L(\Beta) &= \sum_{i=1}^k \log\bigg(\frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}\bigg)\\
+    &= \sum_{i=1}^k \bigg( \log(e^{\z_i\Beta}) - \log(\sum_{j\in\R_i}e^{\z_j\Beta})\bigg)\\
+    &= \sum_{i=1}^k \z_i\Beta - \sum_{i=1}^k \log(\sum_{j\in\R_i}e^{\z_j\Beta})
+\end{align}
+
+
+
+\subsection{Methods for Partial Likelihood}
+\subsection{Cox Method}
+\subsection{Kalbfeisch and Prentice}
+\subsection{Breslow's Method}
+\subsection{Efron's Method}
+
+\newpage
+\section{Baseline Hazard}\label{baseline}
+
+As mentioned in section \ref{background}, the Cox model can be used for estimation of survival time. This requires the baseline hazard to be estimated and so it is not the primary use of the model. As mentioned, one of the key features of the Cox model is that is assumes nothing about the baseline hazard; it is allowed to take an entirely approximate form and the coefficient vector can still be estimated. Thus the most common ways of estimating survival time -- and by consequence the baseline hazard -- directly disregard an attractive feature of the model.
+
+Nonetheless, the baseline hazard can be estimated in number of ways, both parametrically and nonparametrically. I will discuss both briefly here. 
+
+\subsection{Nonparametric Estimation}
+
+There are two main routes which are taken when estimating the baseline hazard nonparametrically. Kalbfeisch and Prentice \fcite{KalbfleischPrentice1980} follow the same logic as the Kaplan-Meier estimate introduced in section \ref{non-parametric-estimators}; the hazard function is conditioned on the discrete times of events and is identically zero between the times. 
+
+The baseline survivor function estimate can be written as
+
+\begin{equation}
+    \hat{\F}_{0,KP}(t)=\prod_{j;t_i<t}\hat{\pi}_j,
+\end{equation}
+
+where $\pi_i$ is the conditional probability of survival at time $t(i)$ for a subject at the baseline such that
+
+\begin{equation}
+    \pi_j = 1 - \lambda_0(t_j).
+\end{equation}
+
+To obtain the conditional probability for a subject with covariate vector $\z$, $\pi_i$ must be raised to the power of the hazard ratio. This leads to the likelihood function of $\F_{0,KP}$:
+
+\begin{equation}\label{MLE-KP}
+    L = \prod_{i=1}^m\bigg[\prod_{j\in\D_i}(1-\pi_i)^{\exp(\z_j\Beta)} \prod_{j\in\R_i-\D_i}\pi_i^{\exp(\z_j\Beta)}\bigg].
+\end{equation}
+
+Meier suggested maximising \bref{MLE-KP} with respect to $\Beta$ and $\pi_i$, however this can be quite computationally expensive. It is commonplace to get $\hat{\Beta}$ from other methods and then maximise the likelihood with respect to $\pi_i$ alone. The MLE can be obtained by solving
+
+\begin{equation}\label{MLE-KP-max}
+    \sum_{j\in\D_i} \frac{\exp(\z_i\hat{\Beta})}{1-\pi_i^{\exp(\z_i\hat{\Beta})}} = \sum_{j\in\R_i}\exp(\z_i\hat{\Beta})
+\end{equation}
+
+iteratively. A commonly suggested starting point for the iteration is
+
+\begin{equation}
+    \log\pi_i = -\frac{d_i}{\sum_{j\in\R_i}\exp(-\z_j\hat{\Beta})}.
+\end{equation}
+
+This is the Breslow estimate introduced below and should give a close starting point to the true solution. If there are no ties, the solution to \bref{MLE-KP-max} is given by
+
+\begin{equation}
+    \hat{\pi}_i = \Bigg(1-\frac{e^{\z_{j(i)}\hat{\Beta}}}{\sum_{j\in\R_i}e^{-\z_j\hat{\Beta}}}\Bigg)^{\exp(\z_{j(i)}\hat{\Beta})}.
+\end{equation}
+
+The other approach was taken proposed by Breslow in his discussion of Cox's paper\ucite{cox72} in which they extended the Nelson-Aalen estimate. Cox and Oakes \fcite{coxoakes1984} (chapter 7.8) describe this estimator in detail and I would encourage the reader to look there for further information if interested. The extensions allows the estimate given by \ref{nelson-aalen-estimator-eqn} to account for the covariates present in the semi-parametric model. Similarly to the Kalbfeisch and Prentice estimator, the estimate only assigns mass to the points at which times at which event times are recorded. The baseline cumulative hazard and survivor function estimates are then
+
+\begin{equation}
+    \hat{\Lambda}_{0,BR}(t)=\sum_{i;t_i<t}\frac{d_i}{\sum_{j\in R_i} \exp(
+\z_j\Beta)},
+\end{equation}
+
+\begin{equation}
+    \hat{\F}_{0,BR}(t)=\exp(-\hat{\Lambda}_{0,BR}(t))
+\end{equation}
+
+I will not give the derivation here but I will explain the logic. The denominator is the sum of relative risk factors or hazard ratios across all the subjects in the risk set at time $i$. Dividing the number of deaths at time $i$, $d_i$, by this summation gives the observed hazard at time $i$. The cumulative baseline hazard estimate is then calculated by summing the hazards up until the time of interest $t$. If there are no covariates (equivalently $\z$ has zero-dimension), the hazard ratio reduces to $1$ and the summation in the denominator counts the number of subjects in the risk set at time $i$. The estimator is then exactly \bref{nelson-aalen-estimator-eqn}.
+
+In practice, the Breslow estimate is more commonly used, but it has the drawback that it will never reach zero even if the last observation is an event. The two estimators are compared by Xia et al \fcite{xia-et-al-18} who concluded that the K-P estimator results in a smaller MSE and less bias. 
+
+\subsection{Parametric Estimation}
+
+The distribution of the baseline hazard can be specified to give a parametric proportional hazards model. Because the development of the Cox model allows the baseline hazard to be entirely arbitrary, any reasonable distribution can be used. The distribution if specified is normally chosen based on assumption or prior knowledge so that it best fits the data. This does require the making of some assumptions which introduces bias, but can greatly increase the predictive power of the model.
+
+The Weibull family of distributions is the only case in which the proportional hazards and the accelerated failure time models coincide. As a note, the exponential distribution is a special case of a Weibull distribution. Rubio et al \fcite{rubioetal} use the Exponentiated Weibull family of distributions in their paper studying general hazard structures. This is an extension of the Weibull family which introduces an extra shape parameter and can be used to describe hazard shapes of interest including: constant, bathtub, increasing, decreasing, and unimodal.
+
+\newpage
+\part{Variable Selection}
+
+When considering the problem of variable selection, it is important to look at both accuracy of prediction and model interpretability: finding the best model will come down to balancing goodness of fit vs parsimony. The selected model should accurately predict future results based on the data already available, but it is also desirable that the model not be overly complex and thus does not make sense with real world data. This is particularly important with a view to the original purpose of the proportional hazards model, that being to estimate the effect of covariates irrespective of the arbitrary underlying distribution. One last feature that is definitely worth mentioning is computational costing. Even with the advances of modern computing which reduces the impact of the efficiency of the computation, with very large datasets (such as are available in cancer epidemiological studies) small optimisations can sway our propensity to choose one method over another.
+
+There are very many (extremely good) methods for model selection when considering the simpler problem of linear regression in continuous time. However, not all of these work well for survival analysis with tied event times and censoring.
+
+Most of the methods used today are generalizations of methods which were used for model selection for linear regression; an application to survival (time-to-event) data with tied times and censoring is not always obvious.
+
+There are multiple schools of thought when considering a statistical approach to the problem. I will discuss the development of techniques from both a Bayesian and a frequentist standpoint, as well as how they are related, how they have been combined and some of the key features of each.
+
+The problem of model selection can very often be decomposed into a problem of parameter selection (those within the model) and hyper-parameter estimation. I would refer the reader to \cite{bayesian-frequentist} for a more in-depth conversation about this distinction as well as discussion about the Bayesian / frequentist divide.
+
+\section{Schools of Statistical Thought}
+
+The two primary ways of approaching the problem of model selection are Bayesian and frequentist. 
+
+\section{The Likelihood Function}
+
+
+
+\section{Penalized Likelihood Methods}
+\section{Subset Selection}
+\section{Model Comparison} 
+\subsection{Likelihood-Ratio Test}
+\subsection{Wald Test}
+\subsection{Lagrange Multiplier (Score) Test}
+\part{Beyond the Model}
+\section{Extensions}
+\section{Alternative Models}
+\part{Example}
+\section{Application of Model Selection}

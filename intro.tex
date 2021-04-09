@@ -1,0 +1,139 @@
+\section{Introduction}
+
+Survival analysis is the statistical analysis of time-to-event data and has applications across many fields. The event in question could be death, failure of a mechanical component, contraction of a disease, loan repayment or default, disease remission, et cetera. Survival data distributions tends to differ from other types of distributions as of course it is non-negative, it is right-skewed and there is right-censoring which I introduce below.
+
+Under the usual survival analysis framework, we have data of the form $\datum$, where $y_i$ is the observed time of event or censoring, $\x_i$ is the covariate vector and $\delta_i$ is the censoring indicator.
+
+Our primary objectives when conducting analyses of this type are:
+\begin{enumerate}
+\begin{spacing}{0}
+    \item the estimation and description of the time until the event,
+    \item the comparison of survival time between groups,
+    \item and the estimation and description of covariates on survival time (survival regression).
+\end{spacing}
+\end{enumerate}
+Objectives 1 and 3 are inherently linked as it is useful to understand the relationship between covariates and survival time when trying to predict the survival time of a given group.
+
+\subsection{Description of Survival Times}
+
+I will now introduce some terms and define them similarly to Cox \fcite{cox72}:
+
+\begin{definition}[Survivor Function]\label{survivor-function}
+The probability that the random variable, $T$, representing failure time is greater than or equal to a specified time $t$:
+\begin{equation}
+    \F(t)=pr(T\geq t)
+\end{equation}
+\end{definition}
+
+\begin{definition}[Hazard Function]
+Also referred to as the age-specific failure rate is the probability of failure at a given instant $t$:
+\begin{equation}
+    \lambda(t)=\lim_{\Delta t \xrightarrow{} 0+}\frac{pr(t\leq T < t+\Delta t | t\leq T)}{\Delta t}
+\end{equation}
+\end{definition}
+
+The hazard function can be thought of as the probability of the observed event occurring instantly given that it has not already happened. A statistical tool called life tables have been used for centuries in demography and actuarial science to analyse the probability of a person dying at a given age, the hazard.
+
+\begin{definition}[Cumulative Hazard Function]
+This is the accumulation over time of the hazard function. It is given by:
+\begin{equation}
+    \Lambda(t)=\int_0^t \lambda(u)du.
+\end{equation}
+\end{definition}
+
+The hazard function as explained is a conditional probability of the event occurring, given that the event has not been observed or censored prior to time $t$. The hazard can therefore be written as
+
+\begin{equation}
+    \lambda(t) = \frac{f(t)}{\F(t)},
+\end{equation}
+
+where $f(t)$ is the probability density function of the random variable $T$ as defined in \ref{survivor-function}. With some manipulation and substitution, it has been shown that
+\begin{equation}
+    \lambda(t) = \frac{f(t)}{1-F(t)}
+    = -\frac{d}{dt}\ln[1-F(t)]
+    = -\frac{d}{dt}\ln\F(t).
+\end{equation}
+
+And so by the fundamental theorem of calculus
+
+\begin{equation}
+    \F(t) = e^{-\Lambda(t)}.
+\end{equation}
+
+These equations have been discussed in many papers and demonstrate a useful relation between the survivor function and the hazard function.
+
+\subsection{Censoring}
+
+A caveat with survival data is that censoring can be very common. Censoring, generally speaking, can be defined as having partial information about an observation. In the case of survival data, the type of censoring most often dealt with and the only type of censoring which will be considered here is right censoring.
+
+\begin{definition}[Right Censoring]\label{right-censoring}
+The most common type of censoring which occurs when we know only that the value of interest (survival time) is above a certain value (censoring time) but not by how much.
+\end{definition}
+
+Any censoring referred to in later sections of this thesis can assumed to be right censoring unless otherwise specified. Some possible causes of right censoring are:
+\begin{itemize}
+\begin{spacing}{0}
+    \item the subject withdrew from the study,
+    \item a different, mutually exclusive event occurred (e.g. the subject died from a different cause),
+    \item the subject stopped following the procedures in place for the study,
+    \item the study ended before an event was observed.
+\end{spacing}
+\end{itemize}
+
+Other types of censoring are left censoring -- in which we only know that the value of interest is below a known value -- and interval censoring -- in which the value is known only to lie between two known values.
+
+Censored values provide partial information and so it is useful to consider and include them wherever possible. Totally excluding them from survival analysis may be equivalent to a huge loss in information in some cases where censoring is very prevalent.
+
+In this paper censoring as described by \bref{right-censoring} will be considered. There are proposed extensions to some of the methods to account for specific censoring rules (i.e. a patient is no longer followed after a predefined x number of weeks) and truncation, but they are not focused on here. 
+
+The $\datum$ form of a datum was introduced above where $\delta_i$ is the censoring indicator. It is defined as follows:
+
+\begin{equation}
+\delta_i=
+\begin{cases} 
+      1 & \text{if $y_i$ is the time of event} \\
+      0 & \text{if $y_i$ is the censoring time}
+\end{cases}
+\end{equation}
+
+Therefore the indicator is non-zero only when censoring does not occur. This will be useful later.
+
+\subsection{Non-Parametric Estimators}\label{non-parametric-estimators}
+
+The main benefit of non-parametric estimators is the lack of assumptions placed on the distribution. The hazard / survival function distribution (depending on what estimator is being used) is allowed to be entirely arbitrary and the estimators act as a maximum likelihood estimate conditioned on the available data. That is, the estimators give an estimation to the distribution which is most likely to have generated the observed data. 
+
+A commonly used method to describe the survival time is the Kaplan-Meier estimator (also called the product limit estimator). Introduced by Kaplan and Meier \fcite{kaplanmeier}, it is used to estimate the survivor function from a data set. This estimation is commonly plotted on a graph called the Kaplan-Meier plot which plots percent survival against time; these can be seen later in the thesis. Two attractive properties of this method are its ability to consider censored data and data sets with an appreciable number of ties in the event times. The estimator is given by
+
+\begin{equation}
+    \hat{\F}(t)=\prod_{i:t_i\leq t}\bigg(1-\frac{d_i}{n_i}\bigg),
+\end{equation}
+
+where $t_i$ is a time with at least one observed event, $d_i$ is the number of events occurring at time $t_i$, and $n_i$ is the number of individuals which have not yet had an observed event or been censored before time $t_i$.
+
+The Nelson-Aalen estimator is a non-parametric estimator of the cumulative hazard function. Similarly to the Kaplan-Meier estimator, it makes no assumptions about the distribution and so one of its main uses is to plot the cumulative hazard function for graphical analysis. For more information and the derivation, see Nelson \fcite{nelson-1969, nelson-1972}. The estimator is given by
+
+\begin{equation}\label{nelson-aalen-estimator-eqn}
+    \hat{\Lambda}(t)=\sum_{t_i\leq t}\frac{d_i}{n_i},
+\end{equation}
+
+where $t_i$, $d_i$, and $n_i$ are defined above.
+
+\subsection{Description of Variable Effect on Survival Time}
+
+When considering the two sample problem and the aim is to compare the survival time of both samples, the log-rank test is often used. It is a non-parametric hypothesis test used to compare survival distributions of two samples. I will not discuss this test in detail here.
+
+It is important in many fields to find the effect of variables on survival time. Parametric and semi-parametric models are widely used for estimating and describing these effects due to the ease of interpretation and computation. Rossell and Rubio \fcite{rossellrubio} gives a great introduction to hazard-based regression models for survival analysis. 
+
+One model is the proportional hazards model introduced by Cox \fcite{cox72}. This is the main focus of this paper and will be explained in detail later. Some other hazards models which are explained by \cite{rossellrubio} are:
+\begin{itemize}
+    \item Accelerated Hazards Model - the covariates have a time-scaling effect on the hazard function.
+    \item Hybrid Hazards Model - a combination of accelerated hazards and proportional hazards models.
+    \item Accelerated Failure Time Model - the covariates have a direct effect on the survival time.
+    \item General Hazards Model - a general hazards model where the other discussed models are special cases.
+\end{itemize}
+
+Among these, the Accelerated Failure Time (AFT) model is one of the oldest and the most popular alternative to the PH model. I will discuss the comparison of the various model structures %later in the paper
+
+\subsection{Thesis Structure}
+
+In this thesis, I will first explain and discuss the proportional hazards model introduced in Cox \fcite{cox72} and some of the proposed extensions. In part II, the problem of variable selection methodology is explored theoretically before testing some of the methods using simulations and real world data in R. Part IV is then a closing discussion with some personal remarks. An appendix has been included with the code used to test the methods.
