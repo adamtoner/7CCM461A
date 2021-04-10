@@ -7,13 +7,12 @@ The Cox model is very attractive to statisticians because it is semi-parametric.
 
 In this section I will describe the model in detail as proposed by Cox and explore surrounding methods and extensions. In section \ref{background} I will give a history of the statistics used by Cox in the development of the model as well as why it was developed, why it is so popular and how it is used. Following, in section \ref{assumptions}, I will take a moment to consider the assumptions made by the model, their implications and their limitations. Section \ref{partial-likelihood} will consider the partial likelihood function as discussed in Cox \fcite{cox75} and some methods of approximating and extending the original partial likelihood from Cox \fcite{cox72}. Section \ref{baseline} will deal with the motives and methods for estimation of the baseline hazard.
 
-\newpage
 \section{Background}\label{background}
 
 The Cox model implements the hazard function in terms of a baseline hazard and a function of the covariates as follows
 
 \begin{equation}\label{cox-hazard}
-    \lambda(t)=\lambda_0(t)e^{(\z\Beta)}.
+    \lambda(t;\z)=\lambda_0(t)e^{(\z\Beta)}.
 \end{equation}
 
 It is preferred over the logistic model for estimating survival time distributions as it considers the censored data and thus can obtain more information. 
@@ -26,19 +25,18 @@ Covariate impact can be estimated using model selection for the Cox model, this 
 
 Survival time or time-to-event estimation can be useful for predicting how long a patient is expected to live after a given diagnosis or the probability that a subject will default on their loan before repayment. The distributions underlying these regression estimations are of huge importance in medical, actuarial, business and engineering studies.
 
-\newpage
 \section{Assumptions and Extensions}\label{assumptions}
 
 As mentioned, the main attraction of the Cox model is the lack of assumption about the underlying hazard, which is allowed to be entirely arbitrary and take any form either parametric or non-parametric.
 
 \subsection{Proportional Hazards}
 
-The assumption of proportional hazards is the basis of the model introduced by Cox \cite{cox72}. If we have $n$ independent and identically distributed variables $T_i$ which have the hazard distribution defined by the Cox model, it is assumed that the hazard of one individual is proportional to the hazard of any other individual.
+The assumption of proportional hazards is the basis of the model introduced by Cox \fcite{cox72}. If we have $n$ independent and identically distributed variables $T_i$ which have the hazard distribution defined by the Cox model, it is assumed that the hazard of one individual is proportional to the hazard of any other individual.
 
 It can easily be seen that every hazard function is proportional to the baseline hazard under the assumption by rearranging \bref{cox-hazard} to give
 
 \begin{equation}\label{prop-hazard}
-    \frac{\lambda(t)}{\lambda_0(t)}=\exp(\z\Beta).
+    \frac{\lambda(t;\z)}{\lambda_0(t)}=\exp(\z\Beta).
 \end{equation}
 
 Clearly, the right side is not a function of $t$ and so the both sides are time invariant. The proportional hazards assumption holds if \bref{prop-hazard} holds.
@@ -46,7 +44,7 @@ Clearly, the right side is not a function of $t$ and so the both sides are time 
 Consider as well the hazard function for two subjects $j$ and $j'$ defined as in \bref{cox-hazard}. Dividing one by the other to find the proportion gives
 
 \begin{equation}\label{hazard-ratio}
-    \frac{\lambda_j(t)}{\lambda_{j'}(t)} =\frac{\lambda_0(t)\exp(\z\Beta)}{\lambda_0(t)\exp(\z'\Beta)}=\frac{\exp(\z\Beta)}{\exp(\z'\Beta)}=e^{\Beta(\z-\z')},
+    \frac{\lambda(t;\z_j)}{\lambda(t;\z_{j'})} =\frac{\lambda_0(t)\exp(\z_j\Beta)}{\lambda_0(t)\exp(\z_{j'}\Beta)}=\frac{\exp(\z_j\Beta)}{\exp(\z_{j'}\Beta)}=e^{(\z_j-\z_{j'})\Beta},
 \end{equation}
 
 which is clearly time invariant on the right side and so must be time invariant on the left side as well. In layman's terms, this means if a subject 1 is twice as likely to have an event as subject 2, then this hazard ratio is constant, irrespective of time.
@@ -71,11 +69,6 @@ Graphical analysis can prove useful but it is limited in that it is difficult to
 
 It is worth mentioning the disadvantages of carrying out the tests described above. Of course it can be useful to check our assumptions hold, but by testing using schoenfeld residuals or another method, we must now also consider the error implicit in the preliminary test carried out. It is possible that we get a false result for our appropriate model test. If we get a false positive, we could be using the Cox PH model when the hazards are indeed not proportional. 
 
-\subsection{Time Dependent Coefficients}
-
-\subsection{Time Dependent Covariates}
-
-\newpage
 \section{Partial Likelihood}\label{partial-likelihood}
 
 A likelihood function is used to measure the goodness of fit of a statistical model based on a given set of data when the parameters of the model are unknown. It is a function of the parameters only and thus treats the random variables in the dataset as though they were fixed.
@@ -85,6 +78,8 @@ It is often the aim to maximise the likelihood function so that we find the para
 The Bayesian and frequentist frameworks for statistics will be discussed in more detail in part II of this thesis, but it is worth mentioning now that the likelihood function plays a fundamental role in both. In Bayesian statistics, the maximum likelihood estimate is a special case of a maximum a posteriori estimation (MAP) in which the parameters follow a uniform prior distribution. From a frequentist standpoint, the MLE is a special case of an extremum estimator in which the objective function is the likelihood function.
 
 Cox \fcite{cox72} introduced what he misleadingly referred to as a conditional likelihood which was a likelihood function for inference about $\Beta$ conditioned on the set ${t_i}$ of instants at which failure occurs. The logic here is no information about the hazard is contributed at any point other than those times at which failure occurs. 
+
+\subsection{Continuous Time}
 
 I will first consider the case of continuous time ($m_{(i)}=1\forall i$) as Cox \fcite{cox72} did. Extensions to discrete time will be discussed below. For each failure at time $t_i$, the probability that the failure which occurs is the one observed is 
 
@@ -147,34 +142,32 @@ Taking the log of the above likelihood will give the log-likelihood you first st
 
 Cox \fcite{cox72} argued that the first term here provides most of the information about $\Beta$ and the last two terms contain most of the information about $\lambda_0(\cdot)$. With this in mind, the first term can be treated as a full likelihood when inference about $\Beta$ is the aim. Thus maximising \bref{partial-likelihood-eqn} gives the maximum partial likelihood estimate (MLPE).
 
-\subsection{Tied Failure Times}
+\subsection{Discrete Time}
 
-Even if just considering the partial likelihood and ignoring the likelihood of the nuisance parameter for now, problems still arise in discrete time when failure times are tied. Cox \fcite{cox72} states that a relatively \emph{ad hoc} modification of the partial likelihood can be made. For a larger proportion of ties, a generalisation is required.
+Even considering just the partial likelihood and ignoring the likelihood of the nuisance parameter, problems still arise in discrete time when failure times are tied. Cox \fcite{cox72} states that a relatively ad hoc modification of the partial likelihood can be made. For a larger proportion of ties, a generalisation is required.
 
 \subsubsection{Cox Method}
 
-Cox \fcite{cox72} proposed a modification to the partial likelihood formula to account for tied failure times by considering the logistic model. The extension is as follows
-
-\begin{align}
-    L(\Beta;\x)&=\prod_{i=1}^kpr(j_{i1},\ldots,j_{id_i};d_i,\R_i)\\
-    &=\prod_{i=1}^k\frac{pr(j_i1,\ldots,j_{id_i})}{\sum_{l\in\R(t_{(i)};m_{(i)})} pr(l_1,\ldots,l_{d_i})}\\
-    &=\prod_{i=1}^k\frac{\exp(\s_i\Beta)}{\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_l\Beta)},
-\end{align}
-
-where $\s_(i)=\sum_{j=1}^{m_{(i)}}\z_i$ and $\R(t_{(i)};m_{(i)})$ is the set of all subsets of size $m_{(i)}$ drawn from $\R(t_{(i)})$. The partial log-likelihood is then given by
+Cox \fcite{cox72} proposed a modification (now called the "discrete method") to the partial likelihood formula to account for tied failure times by considering the logistic model. The extension is given by
 
 \begin{equation}
-    l(\Beta;\x)=\sum_{i=1}^k\s_i\Beta-\sum_{i=1}^k\log\Big(\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_l\Beta)\Big).
+    L_{CX}(\Beta;\x)=\prod_{i=1}^k\frac{\exp(\s_{(i)}\Beta)}{\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_{(l)}\Beta)},
+\end{equation}
+
+where $\s_{(i)}=\sum_{j\in\D_{(i)}}\z_j$ and $\R(t_{(i)};m_{(i)})$ is the set of all subsets of size $m_{(i)}$ drawn from $\R(t_{(i)})$. The partial log-likelihood is then given by
+
+\begin{equation}
+    l(\Beta;\x)=\sum_{i=1}^k\s_{(i)}\Beta-\sum_{i=1}^k\log\Big(\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_{(l)}\Beta)\Big).
 \end{equation}
 
 This method assumes that if there are tied events, they truly happen at the same time. The problem with this method arises when there are a large number of ties which causes the denominator to become very complicated and computationally expensive.
 
 \subsubsection{Kalbfeisch and Prentice}
 
-This is another exact method of calculating the partial likelihood in the event of tied times instroduced by Kalbfeisch and Prentice \fcite{kalbfleisch-prentice-73}. The method assumes that tied times occur due to imprecision in measurement and that there must be a true ordering of the events. The probability of each possible is ordering and summed to give the likelihood at time $t_{(i)}$ as
+Also referred to as the "exact method" of calculating the partial likelihood this method was introduced by Kalbfeisch and Prentice \fcite{kalbfleisch-prentice-73}. The method assumes that tied times occur due to imprecision in measurement and that there must be a true ordering of the events. The probability of each possible is ordering and summed to give the likelihood at time $t_{(i)}$ as
 
 \begin{equation}
-    L(\Beta;\x)=\prod_{i=1}^k\frac{\exp(\s_{(i)}\Beta)}{\sum_{(p_1,\ldots,p_{m_{(i)}})\in Q_i}\prod_{j=1}^{m_{(i)}}\sum_{l\in\R(t_{(i)},p_j)}\exp(\z_l\Beta)},
+    L_{KP}(\Beta;\x)=\prod_{i=1}^k\frac{\exp(\s_{(i)}\Beta)}{\sum_{(p_1,\ldots,p_{m_{(i)}})\in Q_i}\prod_{j=1}^{m_{(i)}}\sum_{l\in\R(t_{(i)},p_j)}\exp(\z_l\Beta)},
 \end{equation}
 
 where $Q_i$ is the set of all permutations of indices of the individuals failing at $t_{(i)}$. $(p_1,\ldots,p_{m_{(i)}})$ is a single permutation in $Q_i$ and $\R(t_{(i)},p_r)$ is the set difference $\R(t_{(i)}-(p_1,\ldots,p_{r-1})$. This is easier to compute than the Cox method above, but it can still be computationally expensive.
@@ -184,12 +177,58 @@ where $Q_i$ is the set of all permutations of indices of the individuals failing
 The method proposed by Breslow \fcite{breslow74} generalises the results of Peto \fcite{peto-peto-72}. It is an approximation to the real likelihood function which replaces the denominator $\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_l\Beta)$ in Cox's method with $\big[\sum_{l\in\R(t_{(i)})}\exp(\z_l\Beta)\big]^{m_{(i)}}$ giving the partial likelihood
 
 \begin{equation}
-    L(\Beta;\x)\approx\prod_{i=1}^k\frac{\exp(\s_i\Beta)}{\big[\sum_{l\in\R(t_{(i)})}\exp(\z_l\Beta)\big]^{m_{(i)}}}
+    L(\Beta;\x)\approx L_{BR}(\Beta;\x)=\prod_{i=1}^k\frac{\exp(\s_i\Beta)}{\big[\sum_{l\in\R(t_{(i)})}\exp(\z_l\Beta)\big]^{m_{(i)}}}.
+\end{equation}
+
+I will demonstrate the logic of this approximation with a simple example. Let two individuals 2 and 4 in the risk set $\R(t_{(i)})={1,2,3,4,5}$ fail at time $t_{(i)}$. The probability of observing 2 and 4 fail at $t_{(i)}$ is
+
+\begin{gather*}
+    \frac{e^{\z_2\Beta}}{e^{\z_1\Beta}+e^{\z_2\Beta}+e^{\z_3\Beta}+e^{\z_4\Beta}+e^{\z_5\Beta}}\cdot\frac{e^{\z_4\Beta}}{e^{\z_1\Beta}+e^{\z_3\Beta}+e^{\z_4\Beta}+e^{\z_5\Beta}}\\
+    OR\\
+    \frac{e^{\z_4\Beta}}{e^{\z_1\Beta}+e^{\z_2\Beta}+e^{\z_3\Beta}+e^{\z_4\Beta}+e^{\z_5\Beta}}\cdot\frac{e^{\z_2\Beta}}{e^{\z_1\Beta}+e^{\z_2\Beta}+e^{\z_3\Beta}+e^{\z_5\Beta}}.
+\end{gather*}
+
+This is approximately equal to $\frac{e^{(\z_2+\z_4)\Beta}}{\big[e^{\z_1\Beta}+e^{\z_2\Beta}+e^{\z_3\Beta}+e^{\z_4\Beta}+e^{\z_5\Beta}\big]^2}$. Clearly this approximation will not be accurate if $\frac{m_{(i)}}{r_{(i)}}$ is commonly large. Due to the addition of extra terms to the denominator whilst keeping the numerator consistent, the result will be biased toward zero. 
+
+The log likelihood of this approximation is given by Kalbfleisch and Prentice \fcite{kalbfleisch-prentice-80} as
+
+\begin{equation}
+    l_{BR}(\Beta;\x)=\sum_{i=1}^{k}\s_{(i)}\Beta - \sum_{i=1}^km_{(i)}\log\Big(\sum_{l\in\R_i}\z_l\Beta\Big).
 \end{equation}
 
 \subsubsection{Efron's Method}
 
-\newpage
+Although Breslow's approximation was the most common choice for years when it came to software packages due to its computational simplicity, Efron \fcite{efron-77} suggested another approximation which is usually more accurate and now the more popular choice. For a comparison of these estimators, see 
+
+\begin{equation}
+    L(\Beta;\x)\approx L_{EF}(\Beta;\x)=\prod_{i=1}^k\frac{\exp(\s_i\Beta)}{\prod_{j=1}^{m_{(i)}}\Big[\sum_{l\in\R_{(i)}}\exp(\z_l\Beta)-\frac{j-1}{m_{(i)}}\sum_{l\in\D_{(i)}}\exp(\z_l\Beta)\Big]}.
+\end{equation}
+
+Intuitively, this is similar to the Breslow approximation with a penalty term added to the denominator in an attempt to bring the approximation closer to the true value. However the approximation is still inaccurate unless the ratio of tied times to the risk sets is low for most times.
+
+The Efron approximation is preferred for most cases today as it is more accurate than the Breslow approximation but still faster than the exact methods discussed above. The log partial likelihood is again given by Kalbfleisch and Prentice \fcite{kalbfleisch-prentice-80}:
+
+\begin{equation}
+    l_{EF}(\Beta;\x)=\sum_{i=1}^k\Bigg(\s_i\Beta - \sum_{j=1}^{m_{(i)}}\log\Big[\sum_{l\in\R_{(i)}}\exp(\z_l\Beta)-\frac{j-1}{m_{(i)}}\sum_{l\in\D_{(i)}}\exp(\z_l\Beta)\Big]\Bigg).
+\end{equation}
+
+\subsection{Finding the MPLE}
+
+The above forms and approximations of the partial likelihood function with respect to $\Beta$ given the data can be "solved" to give the maximum partial likelihood estimate. This is usually done iteratively, as finding the parameter vector which maximises the likelihood explicitly is often far too complicated or even impossible. 
+
+To find the MLPE, intuitively $\pdv{l(\Beta;\x)}{\Beta_\xi}=0$ for all $\xi\in\{1,\ldots,p\}$. Some of the commonly used iterative methods are
+
+\begin{itemize}
+\begin{spacing}{0}
+    \item Newton-Raphson,
+    \item Cyclic Coordinate Descent,
+    \item Gradient Descent.
+\end{spacing}
+\end{itemize}
+
+Other methods have been proposed and used over the years but I will not explain the methods further here. 
+As a final note in this chapter, if there are few or no ties all of the mentioned likelihood forms will coincide.
+
 \section{Baseline Hazard}\label{baseline}
 
 As mentioned in section \ref{background}, the Cox model can be used for estimation of survival time. This requires the baseline hazard to be estimated and so it is not the primary use of the model. As mentioned, one of the key features of the Cox model is that is assumes nothing about the baseline hazard; it is allowed to take an entirely approximate form and the coefficient vector can still be estimated. Thus the most common ways of estimating survival time -- and by consequence the baseline hazard -- directly disregard an attractive feature of the model.
@@ -198,7 +237,7 @@ Nonetheless, the baseline hazard can be estimated in number of ways, both parame
 
 \subsection{Nonparametric Estimation}
 
-There are two main routes which are taken when estimating the baseline hazard nonparametrically. Kalbfeisch and Prentice \fcite{KalbfleischPrentice1980} follow the same logic as the Kaplan-Meier estimate introduced in section \ref{non-parametric-estimators}; the hazard function is conditioned on the discrete times of events and is identically zero between the times. 
+There are two main routes which are taken when estimating the baseline hazard nonparametrically. Kalbfeisch and Prentice \fcite{kalbfleisch-prentice-80} follow the same logic as the Kaplan-Meier estimate introduced in section \ref{non-parametric-estimators}; the hazard function is conditioned on the discrete times of events and is identically zero between the times. 
 
 The baseline survivor function estimate can be written as
 
