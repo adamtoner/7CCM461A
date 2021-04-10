@@ -43,8 +43,8 @@ This is the accumulation over time of the hazard function. It is given by:
 
 The hazard function as explained is a conditional probability of the event occurring, given that the event has not been observed or censored prior to time $t$. The hazard can therefore be written as
 
-\begin{equation}
-    \lambda(t) = \frac{f(t)}{\F(t)},
+\begin{equation}\label{hazard-function}
+    \lambda(t;\z) = \frac{f(t;\z)}{\F(t;\z)},
 \end{equation}
 
 where $f(t)$ is the probability density function of the random variable $T$ as defined in \ref{survivor-function}. With some manipulation and substitution, it has been shown that

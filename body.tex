@@ -82,38 +82,112 @@ A likelihood function is used to measure the goodness of fit of a statistical mo
 
 It is often the aim to maximise the likelihood function so that we find the parameters which will best fit the model. This parameter vector which maximises the likelihood function is referred to as the maximum likelihood estimate (MLE). When computing the MLE, it is often convenient to use the log-likelihood function to convert the difficult to work with products into more friendly summations.
 
-The Bayesian and frequentist frameworks for statistics will be discussed in more detail in part II of this thesis, but it is worth mentioning now that the likelihood function plays a fundamental role in both. In fact, the maximum likelihood estimate is a special case of a maximum a posteriori estimation (MAP) in which the parameters follow a uniform prior distribution. See section ---- for more information.
+The Bayesian and frequentist frameworks for statistics will be discussed in more detail in part II of this thesis, but it is worth mentioning now that the likelihood function plays a fundamental role in both. In Bayesian statistics, the maximum likelihood estimate is a special case of a maximum a posteriori estimation (MAP) in which the parameters follow a uniform prior distribution. From a frequentist standpoint, the MLE is a special case of an extremum estimator in which the objective function is the likelihood function.
 
 Cox \fcite{cox72} introduced what he misleadingly referred to as a conditional likelihood which was a likelihood function for inference about $\Beta$ conditioned on the set ${t_i}$ of instants at which failure occurs. The logic here is no information about the hazard is contributed at any point other than those times at which failure occurs. 
 
-I will first consider the case of continuous time ($m_i=1\forall i$) as Cox \fcite{cox72} did. For each failure at time $t_i$, the probability that the failure which occurs is the one observed is 
+I will first consider the case of continuous time ($m_{(i)}=1\forall i$) as Cox \fcite{cox72} did. Extensions to discrete time will be discussed below. For each failure at time $t_i$, the probability that the failure which occurs is the one observed is 
 
 \begin{equation}
-    \frac{\lambda(t_i; \z_i)dt}{\sum_{j\in\R_i}\lambda(t_i; \z_{j})dt} = 
-    \frac{\lambda_0(t_i)e^{\z_i\Beta}}{\sum_{j\in\R_i}\lambda_0(t_i)e^{\z_j\Beta}} = \frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}.
+    \frac{\lambda(t_{(i)}; \z_i)dt}{\sum_{j\in\R_i}\lambda(t_{(i)}; \z_{j})dt} = 
+    \frac{\lambda_0(t_{(i)})e^{\z_i\Beta}}{\sum_{j\in\R_i}\lambda_0(t_{(i)})e^{\z_j\Beta}} = \frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}.
 \end{equation}
 
-This is the ratio of the hazard of the individual on which failure was observed over the sum of hazards across all the individuals who are at risk at time $t_i$. Notice that the baseline hazard cancels out leaving an equation which only varies with $\Beta$. The partial likelihood is then:
+This is the ratio of the hazard of the individual on which failure was observed over the sum of hazards across all the individuals who are at risk at time $t_i$. Notice that the baseline hazard cancels out leaving an equation which only varies with $\Beta$. The likelihood function is then:
 
-\begin{equation}
-    L(\Beta) = \prod_{i=1}^k \frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}
+\begin{equation}\label{partial-likelihood-eqn}
+    L(\Beta;\x) = \prod_{i=1}^k \frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}
 \end{equation}
 
-The log partial likelihood function for the model conditioned on ${t_i}$ is then given by taking the natural logarithm of the above function summing over all events as follows:
+The log-likelihood function for the model conditioned on ${t_i}$ is then given by taking the natural logarithm of the above function and summing over all events as follows:
 
 \begin{align}
-    l(\Beta) &= \sum_{i=1}^k \log\bigg(\frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}\bigg)\\
+    l(\Beta;\x) &= \sum_{i=1}^k \log\bigg(\frac{e^{\z_i\Beta}}{\sum_{j\in\R_i}e^{\z_j\Beta}}\bigg)\\
     &= \sum_{i=1}^k \bigg( \log(e^{\z_i\Beta}) - \log(\sum_{j\in\R_i}e^{\z_j\Beta})\bigg)\\
     &= \sum_{i=1}^k \z_i\Beta - \sum_{i=1}^k \log(\sum_{j\in\R_i}e^{\z_j\Beta})
 \end{align}
 
+The above likelihood given by \bref{partial-likelihood-eqn} and the consequent log-likelihood are referred to as a partial likelihood. Cox \fcite{cox75} explained and discussed the partial likelihood. The principle of the partial likelihood is separating, as far as is possible, the incidental parameters and the nuisance parameters as shown by:
 
+\begin{equation}
+    L(\theta,\Beta;data) = L(\theta;data)\cdot L(\Beta;data)
+\end{equation}
 
-\subsection{Methods for Partial Likelihood}
-\subsection{Cox Method}
-\subsection{Kalbfeisch and Prentice}
-\subsection{Breslow's Method}
-\subsection{Efron's Method}
+In the case of the Cox PH model, the coefficient vector, $\Beta$, is generally considered the incidental parameters and the nuisance parameter is the baseline hazard, $\lambda_0(t)$.
+
+Consider the data as falling into two categories: right-censored and failure. Individuals observed to fail at time $t_i$ contribute to the density term $f(t_{(i)})$ and individuals censored at $t_i$ contribute to the survivor function $\F(t_{(i)})$. This gives the full likelihood function as
+
+\begin{equation}
+    L(\Beta,\lambda_0(\cdot);\x)=\prod_{i=1}^kf(t_{(i)};\Beta)^{\delta_i}\F(t_{(i)};\Beta)^{1-\delta_i}.
+\end{equation}
+
+The definition of the hazard function \bref{hazard-function} gives 
+
+\begin{equation}
+    L(\Beta,\lambda_0(\cdot);\x)=\prod_{i=1}^k\lambda(t_{(i)};\Beta)^{\delta_i}\F(t_{(i)};\Beta).    
+\end{equation}
+
+Substituting for the definition of the survivor function,
+
+\begin{equation}
+    \F(t;\Beta)=(\F_0(t))^{\exp(w\Beta)}=\big(e^{-\int_0^t\lambda_0(u)du}\big)^{\exp(w\Beta)},
+\end{equation}
+
+allows the likelihood to be written as
+
+\begin{equation}
+    L(\Beta,\lambda_0(\cdot);\x)=\prod_{i=1}^k\big(\lambda_0(t_{(i)})e^{w_i\Beta}\big)^{\delta_i}\big(e^{-\int_0^t\lambda_0(u)du}\big)^{\exp(w_i\Beta)}.
+\end{equation}
+
+Taking the log of the above likelihood will give the log-likelihood you first stated. Now multiplying by $\bigg(\frac{\sum_{j\in\mathscr{R}_i}\lambda_0(t_{(i)})\exp({w_j\Beta})}{\sum_{j\in\mathscr{R}_i}\lambda_0(t_{(i)})\exp({w_j\Beta})}\bigg)^{\delta_i}$ and cancelling the baseline hazards gives
+
+\begin{equation}
+    L(\Beta,\lambda_0(\cdot);\x)=\prod_{i=1}^k\bigg(\frac{e^{w_i\Beta}}{\sum_{j\in\mathscr{R}_i}e^{w_j\Beta}}\bigg)^{\delta_i}\prod_{i=1}^k\big(\sum_{j\in\mathscr{R}_i}\lambda_0(t_{(i)})e^{w_j\Beta}\big)^{\delta_i}\big(e^{-\int_0^t\lambda_0(u)du}\big)^{\exp(w_i\Beta)}.
+\end{equation}
+
+Cox \fcite{cox72} argued that the first term here provides most of the information about $\Beta$ and the last two terms contain most of the information about $\lambda_0(\cdot)$. With this in mind, the first term can be treated as a full likelihood when inference about $\Beta$ is the aim. Thus maximising \bref{partial-likelihood-eqn} gives the maximum partial likelihood estimate (MLPE).
+
+\subsection{Tied Failure Times}
+
+Even if just considering the partial likelihood and ignoring the likelihood of the nuisance parameter for now, problems still arise in discrete time when failure times are tied. Cox \fcite{cox72} states that a relatively \emph{ad hoc} modification of the partial likelihood can be made. For a larger proportion of ties, a generalisation is required.
+
+\subsubsection{Cox Method}
+
+Cox \fcite{cox72} proposed a modification to the partial likelihood formula to account for tied failure times by considering the logistic model. The extension is as follows
+
+\begin{align}
+    L(\Beta;\x)&=\prod_{i=1}^kpr(j_{i1},\ldots,j_{id_i};d_i,\R_i)\\
+    &=\prod_{i=1}^k\frac{pr(j_i1,\ldots,j_{id_i})}{\sum_{l\in\R(t_{(i)};m_{(i)})} pr(l_1,\ldots,l_{d_i})}\\
+    &=\prod_{i=1}^k\frac{\exp(\s_i\Beta)}{\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_l\Beta)},
+\end{align}
+
+where $\s_(i)=\sum_{j=1}^{m_{(i)}}\z_i$ and $\R(t_{(i)};m_{(i)})$ is the set of all subsets of size $m_{(i)}$ drawn from $\R(t_{(i)})$. The partial log-likelihood is then given by
+
+\begin{equation}
+    l(\Beta;\x)=\sum_{i=1}^k\s_i\Beta-\sum_{i=1}^k\log\Big(\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_l\Beta)\Big).
+\end{equation}
+
+This method assumes that if there are tied events, they truly happen at the same time. The problem with this method arises when there are a large number of ties which causes the denominator to become very complicated and computationally expensive.
+
+\subsubsection{Kalbfeisch and Prentice}
+
+This is another exact method of calculating the partial likelihood in the event of tied times instroduced by Kalbfeisch and Prentice \fcite{kalbfleisch-prentice-73}. The method assumes that tied times occur due to imprecision in measurement and that there must be a true ordering of the events. The probability of each possible is ordering and summed to give the likelihood at time $t_{(i)}$ as
+
+\begin{equation}
+    L(\Beta;\x)=\prod_{i=1}^k\frac{\exp(\s_{(i)}\Beta)}{\sum_{(p_1,\ldots,p_{m_{(i)}})\in Q_i}\prod_{j=1}^{m_{(i)}}\sum_{l\in\R(t_{(i)},p_j)}\exp(\z_l\Beta)},
+\end{equation}
+
+where $Q_i$ is the set of all permutations of indices of the individuals failing at $t_{(i)}$. $(p_1,\ldots,p_{m_{(i)}})$ is a single permutation in $Q_i$ and $\R(t_{(i)},p_r)$ is the set difference $\R(t_{(i)}-(p_1,\ldots,p_{r-1})$. This is easier to compute than the Cox method above, but it can still be computationally expensive.
+
+\subsubsection{Breslow's Method}
+
+The method proposed by Breslow \fcite{breslow74} generalises the results of Peto \fcite{peto-peto-72}. It is an approximation to the real likelihood function which replaces the denominator $\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_l\Beta)$ in Cox's method with $\big[\sum_{l\in\R(t_{(i)})}\exp(\z_l\Beta)\big]^{m_{(i)}}$ giving the partial likelihood
+
+\begin{equation}
+    L(\Beta;\x)\approx\prod_{i=1}^k\frac{\exp(\s_i\Beta)}{\big[\sum_{l\in\R(t_{(i)})}\exp(\z_l\Beta)\big]^{m_{(i)}}}
+\end{equation}
+
+\subsubsection{Efron's Method}
 
 \newpage
 \section{Baseline Hazard}\label{baseline}
@@ -141,7 +215,7 @@ where $\pi_i$ is the conditional probability of survival at time $t(i)$ for a su
 To obtain the conditional probability for a subject with covariate vector $\z$, $\pi_i$ must be raised to the power of the hazard ratio. This leads to the likelihood function of $\F_{0,KP}$:
 
 \begin{equation}\label{MLE-KP}
-    L = \prod_{i=1}^m\bigg[\prod_{j\in\D_i}(1-\pi_i)^{\exp(\z_j\Beta)} \prod_{j\in\R_i-\D_i}\pi_i^{\exp(\z_j\Beta)}\bigg].
+    L = \prod_{i=1}^k\bigg[\prod_{j\in\D_i}(1-\pi_i)^{\exp(\z_j\Beta)} \prod_{j\in\R_i-\D_i}\pi_i^{\exp(\z_j\Beta)}\bigg].
 \end{equation}
 
 Meier suggested maximising \bref{MLE-KP} with respect to $\Beta$ and $\pi_i$, however this can be quite computationally expensive. It is commonplace to get $\hat{\Beta}$ from other methods and then maximise the likelihood with respect to $\pi_i$ alone. The MLE can be obtained by solving
