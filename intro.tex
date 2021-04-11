@@ -2,7 +2,7 @@
 
 Survival analysis is the statistical analysis of time-to-event data and has applications across many fields. The event in question could be death, failure of a mechanical component, contraction of a disease, loan repayment or default, disease remission, et cetera. Survival data distributions tends to differ from other types of distributions as of course it is non-negative, it is right-skewed and there is right-censoring which I introduce below.
 
-Under the usual survival analysis framework, we have data of the form $\datum$, where $y_i$ is the observed time of event or censoring, $\x_i$ is the covariate vector and $\delta_i$ is the censoring indicator.
+Under the usual survival analysis framework, we have data of the form $\theta_i=\datum$, where $t_i$ is the observed time of event or censoring, $\z_i$ is the covariate vector and $\delta_i$ is the censoring indicator.
 
 Our primary objectives when conducting analyses of this type are:
 \begin{enumerate}
@@ -44,7 +44,7 @@ This is the accumulation over time of the hazard function. It is given by:
 The hazard function as explained is a conditional probability of the event occurring, given that the event has not been observed or censored prior to time $t$. The hazard can therefore be written as
 
 \begin{equation}\label{hazard-function}
-    \lambda(t;\z) = \frac{f(t;\z)}{\F(t;\z)},
+    \lambda(t) = \frac{f(t)}{\F(t)},
 \end{equation}
 
 where $f(t)$ is the probability density function of the random variable $T$ as defined in \ref{survivor-function}. With some manipulation and substitution, it has been shown that
@@ -57,12 +57,12 @@ where $f(t)$ is the probability density function of the random variable $T$ as d
 And so by the fundamental theorem of calculus
 
 \begin{equation}
-    \F(t) = e^{-\Lambda(t)}.
+    \F(t) = e^{-\Lambda(t)}=e^{-\int_0^t\lambda(u)du}.
 \end{equation}
 
 These equations have been discussed in many papers and demonstrate a useful relation between the survivor function and the hazard function.
 
-\subsection{Censoring}
+\subsection{Censoring}\label{intro-censoring}
 
 A caveat with survival data is that censoring can be very common. Censoring, generally speaking, can be defined as having partial information about an observation. In the case of survival data, the type of censoring most often dealt with and the only type of censoring which will be considered here is right censoring.
 
@@ -91,8 +91,8 @@ The $\datum$ form of a datum was introduced above where $\delta_i$ is the censor
 \begin{equation}
 \delta_i=
 \begin{cases} 
-      1 & \text{if $y_i$ is the time of event} \\
-      0 & \text{if $y_i$ is the censoring time}
+      1 & \text{if an event is observed at $t=t_{(i)}$} \\
+      0 & \text{if censoring occurs at $t=t_{(i)}$}
 \end{cases}
 \end{equation}
 
@@ -105,18 +105,18 @@ The main benefit of non-parametric estimators is the lack of assumptions placed 
 A commonly used method to describe the survival time is the Kaplan-Meier estimator (also called the product limit estimator). Introduced by Kaplan and Meier \fcite{kaplanmeier}, it is used to estimate the survivor function from a data set. This estimation is commonly plotted on a graph called the Kaplan-Meier plot which plots percent survival against time; these can be seen later in the thesis. Two attractive properties of this method are its ability to consider censored data and data sets with an appreciable number of ties in the event times. The estimator is given by
 
 \begin{equation}
-    \hat{\F}(t)=\prod_{i:t_i\leq t}\bigg(1-\frac{d_i}{n_i}\bigg),
+    \hat{\F}(t)=\prod_{i:t_{(i)}\leq t}\bigg(1-\frac{m_{(i)}}{r_{(i)}}\bigg),
 \end{equation}
 
-where $t_i$ is a time with at least one observed event, $d_i$ is the number of events occurring at time $t_i$, and $n_i$ is the number of individuals which have not yet had an observed event or been censored before time $t_i$.
+where $t_{(i)}$ is a time with at least one observed event, $m_{(i)}$ is the number of events occurring at time $t_{(i)}$, and $r_{(i)}$ is the number of individuals which have not yet had an observed event or been censored before time $t_{(i)}$.
 
 The Nelson-Aalen estimator is a non-parametric estimator of the cumulative hazard function. Similarly to the Kaplan-Meier estimator, it makes no assumptions about the distribution and so one of its main uses is to plot the cumulative hazard function for graphical analysis. For more information and the derivation, see Nelson \fcite{nelson-1969, nelson-1972}. The estimator is given by
 
 \begin{equation}\label{nelson-aalen-estimator-eqn}
-    \hat{\Lambda}(t)=\sum_{t_i\leq t}\frac{d_i}{n_i},
+    \hat{\Lambda}(t)=\sum_{i;t_{(i)}\leq t}\frac{m_{(i)}}{r_{(i)}},
 \end{equation}
 
-where $t_i$, $d_i$, and $n_i$ are defined above.
+where $t_{(i)}$, $m_{(i)}$, and $r_{(i)}$ are defined above.
 
 \subsection{Description of Variable Effect on Survival Time}
 

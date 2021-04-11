@@ -1,11 +1,18 @@
 \newpage
 \part{The Model}
 
-The Cox Proportional Hazards Model is one of the most used statistical techniques in the world. It was introduced by Cox \fcite{cox72} with the aim of extending the results of Kaplan and Meier \fcite{kaplanmeier} "to the comparison of life tables and more generally to the incorporation of regression-like arguments into life-table analysis." Interestingly, these two papers are two of the most cited papers in statistics according to Ryan and Woodall \fcite{ryanwoodall}. So why is the Cox model so popular?
+The Proportional Hazards Model is one of the most used statistical techniques in the world. It was introduced by Cox \fcite{cox72} with the aim of extending the results of Kaplan and Meier \fcite{kaplanmeier} "to the comparison of life tables and more generally to the incorporation of regression-like arguments into life-table analysis." Interestingly, these two papers are two of the most cited papers in statistics according to Ryan and Woodall \fcite{ryanwoodall}. So why is the Cox model so popular?
 
-The Cox model is very attractive to statisticians because it is semi-parametric. What this effectively means is the hazard is divided into a non-parametric baseline hazard (which can be entirely arbitrary and time-dependent) which is common across all subjects and a relative risk parameter which describes the effects of covariates on the hazard.
+The Cox model is very attractive to statisticians because it is semi-parametric. What this effectively means is the hazard is divided into two parts:
 
-In this section I will describe the model in detail as proposed by Cox and explore surrounding methods and extensions. In section \ref{background} I will give a history of the statistics used by Cox in the development of the model as well as why it was developed, why it is so popular and how it is used. Following, in section \ref{assumptions}, I will take a moment to consider the assumptions made by the model, their implications and their limitations. Section \ref{partial-likelihood} will consider the partial likelihood function as discussed in Cox \fcite{cox75} and some methods of approximating and extending the original partial likelihood from Cox \fcite{cox72}. Section \ref{baseline} will deal with the motives and methods for estimation of the baseline hazard.
+\begin{itemize}
+    \item a baseline hazard (which can be entirely arbitrary, nonparametric and time-dependent) which is common across all subjects, and
+    \item a relative risk parameter which describes the effects of covariates on the hazard.
+\end{itemize} 
+
+This separation allows statisticians to build models based on the covariates without explicit or iterative calculation of the baseline hazard.
+
+In this part of the thesis, I will describe the model in detail as proposed by Cox and explore surrounding methods and extensions. In section \ref{background}, I will give a history of the statistics used by Cox in the development of the model and the assumptions it is based upon. Section \ref{partial-likelihood} will consider the partial likelihood function as discussed in Cox \fcite{cox75}, why it can be consider it a full likelihood and why this is of benefit. Some methods of approximating and extending the original partial likelihood introduced by Cox \fcite{cox72} (which dealt solely with continuous time events) will be introduced briefly. Section \ref{baseline} will deal with the motives and methods for estimation of the baseline hazard.
 
 \section{Background}\label{background}
 
@@ -15,9 +22,7 @@ The Cox model implements the hazard function in terms of a baseline hazard and a
     \lambda(t;\z)=\lambda_0(t)e^{(\z\Beta)}.
 \end{equation}
 
-It is preferred over the logistic model for estimating survival time distributions as it considers the censored data and thus can obtain more information. 
-
-The general approach to solving the model would first estimate the regression coefficients, then choose or estimate a suitable distribution for the baseline hazard, and finally estimate the full survivor and hazard functions.
+It is preferred over the logistic model for estimating survival time distributions as it considers the censored data and thus can obtain more information. The general approach to solving the model would first estimate the regression coefficients, then choose or estimate a suitable distribution for the baseline hazard, and finally estimate the full survivor and hazard functions.
 
 The Cox model has two primary uses: variable impact estimation and survival time estimation. Of course, they impact one another but they are distinct.
 
@@ -25,9 +30,19 @@ Covariate impact can be estimated using model selection for the Cox model, this 
 
 Survival time or time-to-event estimation can be useful for predicting how long a patient is expected to live after a given diagnosis or the probability that a subject will default on their loan before repayment. The distributions underlying these regression estimations are of huge importance in medical, actuarial, business and engineering studies.
 
-\section{Assumptions and Extensions}\label{assumptions}
+\subsection{Censoring}
 
-As mentioned, the main attraction of the Cox model is the lack of assumption about the underlying hazard, which is allowed to be entirely arbitrary and take any form either parametric or non-parametric.
+I introduced censoring in section \ref{intro-censoring} and explained that most of the censoring that will be dealt with is right censoring. Here I would like to give a brief insight into how right censoring is usually dealt with and how it can affect the results of the model.
+
+Obviously, it is beneficial to include as much information can be from the data when building the model. Thus in normal procedure, the individuals are included up until the point at which they are censored, then are removed from calculation at the end of the interval in which they are censored. 
+
+Think of this as follows: if there is a set of $\{1,2,3,4\}$ of individuals and is is observed that 1 fails first, then 2 is censored, 3 then fails and finally 4 fails, the probability that at the time of first failure 1 fails as observed is given by $$pr(1\textrm{ fails}|\textrm{there is one failure from }\{1,2,3,4\})=\frac{pr(1)}{pr(1)+pr(2)+pr(3)+pr(4)}.$$ Individual 2 is then censored and the probability that 3 fails next is given by $$pr(3\textrm{ fails}|\textrm{there is one failure from }\{3,4\})=\frac{pr(3)}{pr(3)+pr(4)}.$$
+
+In the commonly used methods, increased censoring will lead to an increase in bias in the model, i.e. in our example above, if subjects 2 and 4 were censored in the interval between failure of 1 and 3, the probability of 3 failing would be increased thus giving it more weight in the likelihood estimations introduced below in section \ref{partial-likelihood}.
+
+Robins et al \fcite{robins-rotnitzky-92, robins-93, robins-finkelstein-00} discuss methods to deal censoring to produce consistent and asymptotically normal parameter estimation in the presence of censoring. The approach taken is to assume that given survival to a certain time $t_{(i)}$ and the covariate values $\z_{(i)}$, the censoring the in following interval is independent of survival time. This is referred to as  missing at random (MAR). However these methods are not commonly used and in the usual process as it is not always certain that the data is MAR.
+
+Other possibilities are missing completely at random (MCAR) in which missingness / censoring occurs entirely at random, i.e. independently of the covariates and unknown parameters. Cox \fcite{cox72} stated this was an unsatisfactory assumption and should not be used. The last type of missing data which is relatively common is missing not at random (MNAR) in which data is assumed to be missing or censored due to some condition or a dependence on covariates. E.g. in a depression study where patients are more likely to stop checking in if they become more depressed.
 
 \subsection{Proportional Hazards}
 
@@ -39,9 +54,13 @@ It can easily be seen that every hazard function is proportional to the baseline
     \frac{\lambda(t;\z)}{\lambda_0(t)}=\exp(\z\Beta).
 \end{equation}
 
-Clearly, the right side is not a function of $t$ and so the both sides are time invariant. The proportional hazards assumption holds if \bref{prop-hazard} holds.
+Clearly, the right side is not a function of $t$ and so the both sides are time invariant. The proportional hazards assumption holds if \bref{prop-hazard} holds. This condition can be restated as
 
-Consider as well the hazard function for two subjects $j$ and $j'$ defined as in \bref{cox-hazard}. Dividing one by the other to find the proportion gives
+\begin{equation}
+    \Beta_\xi(t) = c\space \forall \xi\in\{1,\ldots,p\},
+\end{equation}
+
+i.e. the coefficients are time-invariant and have a scaling effect on the baseline hazard. Consider as well the hazard function for two subjects $j$ and $j'$ defined as in \bref{cox-hazard}. Dividing one by the other to find the proportion gives
 
 \begin{equation}\label{hazard-ratio}
     \frac{\lambda(t;\z_j)}{\lambda(t;\z_{j'})} =\frac{\lambda_0(t)\exp(\z_j\Beta)}{\lambda_0(t)\exp(\z_{j'}\Beta)}=\frac{\exp(\z_j\Beta)}{\exp(\z_{j'}\Beta)}=e^{(\z_j-\z_{j'})\Beta},
@@ -49,25 +68,35 @@ Consider as well the hazard function for two subjects $j$ and $j'$ defined as in
 
 which is clearly time invariant on the right side and so must be time invariant on the left side as well. In layman's terms, this means if a subject 1 is twice as likely to have an event as subject 2, then this hazard ratio is constant, irrespective of time.
 
-A direct implication of proportional-hazards is the covariates and coefficients are time invariant. There are extensions of the Cox model discussed by Cox \fcite{cox72} to remove the proportional hazards assumption. These extensions allow for time-dependent covariates and time-dependent coefficients to be considered. The extensions to the Cox model normally involve using splines or fractional polynomials, however it has been suggested in some model comparison discussions, see Patel et al \fcite{compphaft}, that more consideration be given to other hazard structures, namely the AFT. Rubio et al \fcite{rubioetal} explores the various hazard structures and concludes that the AIC is a suitable method for selecting the hazard structure.
+There are extensions of the Cox model discussed by Cox \fcite{cox72} to remove the proportional hazards assumption. These extensions allow for time-dependent covariates and time-dependent coefficients to be considered (see section \ref{extensions}). The extensions to the Cox model normally involve using splines or fractional polynomials, however it has been suggested in some model comparison discussions, see Patel et al \fcite{compphaft}, that more consideration be given to other hazard structures, namely the AFT. Rubio et al \fcite{rubioetal} explores the various hazard structures mentioned in the introduction and concludes that the AIC is a suitable method for selecting the hazard structure.
 
 \subsubsection{Testing Proportional Hazards}
 
 Equation \bref{hazard-ratio} is referred to as the hazard ratio and as mentioned is constant over time. We are able to test that all hazard ratios within the model are constant with time using both goodness-of-fit testing and graphical methods.
 
-There are many different graphical analysis methods to determine if the proportional hazards methods are likely to hold. Hess \fcite{hess95} suggests eight methods of graphical analysis, five of which are compared by Perrson \fcite{persson07} with the method proposed by Arjas \fcite{arjas88} in a simulation study using a Kolmogorov-Smirnov like maximum deviation criterion. Perrson \fcite{persson07} concludes that the Arjas plot is generally the preferred technique if the form of the hazard is anything but increasing, in which case either a smoothed plot of scaled
-Schoenfeld Residuals versus time or a smoothed plot of the ratio of
-log cumulative baseline hazard rates versus time are recommended.
+The essence of testing for proportional hazards boils down to examination of the coefficients. The null hypothesis states that the coefficients are time-invariant; should a test of the time-dependency of the coefficients give a statistically significant result that points to the rejection of the null hypothesis, the proportional hazards assumption has been broken and one of either an ad hoc modification, an extension to the model or a different model must be used.
 
-Despite the advantages of the aforementioned tests, one of the most commonly used methods is using Kaplan-Meier plots. The data is stratified and the K-M curves are plotted. The curves should be proportional, i.e. they should not cross or diverge.  
+There are many different graphical analysis methods to determine if the proportional hazards methods are likely to hold. Hess \fcite{hess95} suggests eight methods of graphical analysis, five of which are compared by Perrson \fcite{persson07} with the method proposed by Arjas \fcite{arjas88} in a simulation study using a Kolmogorov-Smirnov like maximum deviation criterion. Perrson \fcite{persson07} concludes that the Arjas plot is generally the preferred technique if the form of the hazard is anything but increasing, in which case either a smoothed plot of scaled Schoenfeld Residuals versus time or a smoothed plot of the ratio of log cumulative baseline hazard rates versus time are recommended.
+
+Despite the advantages of the aforementioned tests, one of the most commonly used methods is using Kaplan-Meier plots. The data is stratified and the K-M curves are plotted. The curves should be proportional, i.e. they should not cross nor diverge.  
 
 Graphical analysis can prove useful but it is limited in that it is difficult to define objective rules as to what would be deemed to reject the proportional assumptions hypothesis. Most of these methods also will not work well with continuous covariates as the graphs become too cluttered.
 
-%talk about the scaled schoenfeld resiguals
+The most common methods used for testing proportional hazards in statistical software are residuals, including:
 
-\subsubsection{Multiple Testing}
+\begin{itemize}
+\begin{spacing}{0}
+    \item Cox-Snell Residuals
+    \item Martingale Residuals
+    \item Deviance Residuals
+    \item Schoenfeld Residuals
+    \item Scaled Schoenfeld Residuals
+\end{spacing}
+\end{itemize}
 
-It is worth mentioning the disadvantages of carrying out the tests described above. Of course it can be useful to check our assumptions hold, but by testing using schoenfeld residuals or another method, we must now also consider the error implicit in the preliminary test carried out. It is possible that we get a false result for our appropriate model test. If we get a false positive, we could be using the Cox PH model when the hazards are indeed not proportional. 
+I will not discuss in more detail here how these residuals work; for details on how they are used within statistical software in relation to the Cox Model see Hintze \fcite{hintze2007user}.
+
+It is worth mentioning the disadvantages of carrying out tests regarding proportional hazards. Of course it can be useful to check our assumptions hold, but we must now also consider the error implicit in the preliminary test carried out. It is possible that we get a false result for our appropriate model test. If we get a false positive, we could be using the Cox PH model when the hazards are indeed not proportional, or a false negative could lead to rejection of the Cox PH model when it accurately describes the data distribution.
 
 \section{Partial Likelihood}\label{partial-likelihood}
 
@@ -142,7 +171,7 @@ Taking the log of the above likelihood will give the log-likelihood you first st
 
 Cox \fcite{cox72} argued that the first term here provides most of the information about $\Beta$ and the last two terms contain most of the information about $\lambda_0(\cdot)$. With this in mind, the first term can be treated as a full likelihood when inference about $\Beta$ is the aim. Thus maximising \bref{partial-likelihood-eqn} gives the maximum partial likelihood estimate (MLPE).
 
-\subsection{Discrete Time}
+\subsection{Discrete Time}\label{discrete-time}
 
 Even considering just the partial likelihood and ignoring the likelihood of the nuisance parameter, problems still arise in discrete time when failure times are tied. Cox \fcite{cox72} states that a relatively ad hoc modification of the partial likelihood can be made. For a larger proportion of ties, a generalisation is required.
 
@@ -295,6 +324,90 @@ In practice, the Breslow estimate is more commonly used, but it has the drawback
 The distribution of the baseline hazard can be specified to give a parametric proportional hazards model. Because the development of the Cox model allows the baseline hazard to be entirely arbitrary, any reasonable distribution can be used. The distribution if specified is normally chosen based on assumption or prior knowledge so that it best fits the data. This does require the making of some assumptions which introduces bias, but can greatly increase the predictive power of the model.
 
 The Weibull family of distributions is the only case in which the proportional hazards and the accelerated failure time models coincide. As a note, the exponential distribution is a special case of a Weibull distribution. Rubio et al \fcite{rubioetal} use the Exponentiated Weibull family of distributions in their paper studying general hazard structures. This is an extension of the Weibull family which introduces an extra shape parameter and can be used to describe hazard shapes of interest including: constant, bathtub, increasing, decreasing, and unimodal.
+
+\section{Extensions}\label{extensions}
+
+There are limitations to the Cox model which were mentioned when introducing the PH model above. To deal with cases outside of the assumptions, extensions have been proposed. 
+
+A few of these extensions have already been discussed earlier in this thesis:
+
+\begin{itemize}
+    \item Specification of the baseline hazard -- the Cox PH model does not assume any particular form or features about the baseline hazard, so any specification of a parametric distribution of the underlying baseline hazard is technically an extension to the original model;
+    \item Discrete time with an appreciable number of tied event times -- the methods discussed in section \ref{discrete-time} are extensions to the original model which assumed continuous time with no ties.
+\end{itemize}
+
+I will explain in great detail the extensions mentioned below, but they are worth a brief discussion so as to better define the limits of the model that is being used.
+
+\subsection{Stratification}\label{stratification}
+
+Splitting the data into predefined groups can be used to control for certain features of the data while examining the effects of the remaining covariates. 
+
+The easiest way to stratify data is to introduce a categorical covariate $\w$ which has levels $\{1,\ldots,l\}$ for each category into which the data are sorted. It is possible to have multiple categorical covariates by the obvious extension to a categorical covariate vector.
+
+The stratified hazard function for a given category is then given by an adaptation of \bref{cox-hazard} to
+
+\begin{align}
+    \lambda(t;\z,\w)&=\lambda_0(t)e^{\z\Beta + \w\bgamma}\\
+    \label{condensed-stratified} &=\lambda_{\w}e^{\z\Beta}
+\end{align}
+
+where $\bgamma$ is the coefficient vector specifying the categories in which the individual lies. The covariate vectors, $\z$ and $\w$, and the coefficient vectors, $\Beta$ and $\bgamma$, could of course be combined, but it is generally easier to work with them separated so that there is a clear separation between variables which are desired to be controlled and those which are allowed to be free. This comes in useful in our condensation to \ref{condensed-stratified} in which the baseline hazard absorbs the effects of the categorical covariates so that the effects of the normal covariates can be found for a given category.
+
+The utility here is found if it is expected that different categories of data will have different responses to the covariates. It allows for a model to be independently built for each category as opposed to a single model for the whole data set. This is a very common practice in fields such as medicine where it is believed that men and women will react differently to a given disease, e.g. breast cancer.
+
+The hazard function for a particular category can be written as
+
+\begin{equation}
+    \lambda(t;\z,\w=\bv_j) = \lambda_{\bv_j}(t)e^{\z\Beta},
+\end{equation}
+
+where $\bv_j$ is the value of the categorical covariate vector, i.e. it specifies the categories for a given datum.
+
+\subsection{Time-Varying Covariates}
+
+It is a regular requirement to extend the Cox PH model to work with time-dependent covariates. E.g. a study of cancer patients with a covariate stating whether they have had surgery or not. The time-invariant PH model might record a positive result if the patient has ever received surgery, even near the end of the trial; as opposed to the time-dependent PH model which can describe the patient surgery status as negative up until receiving the surgery and positive thereafter. This provides more accurate information about the subject and in theory should help build a better model.
+
+It is a fairly natural extension to the original Cox PH model to account for time-dependent covariates. The logic is, instead of evaluating the hazard for each subject once and using this repeatedly in the likelihood function, the hazard is calculated at each time, $t_{(i)}$, for which the subject is in the risk set $\R_i$.
+
+The hazard function of the time-dependent PH model is given by
+
+\begin{equation}
+    \lambda(t;\z(t)=\lambda_0(t)e^{(\z(t)\Beta)},
+\end{equation}
+
+and the partial likelihood assuming continuous time and no ties is given by
+
+\begin{equation}
+    L(\Beta;\x) = \prod_{i=1}^k\frac{e^{\z_i(t)\Beta}}{\sum_{j\in\R_i}e^{\z_j(t)\Beta}}.
+\end{equation}
+
+By similar substitution of $\z(t)$ for $\z$, the methods and approximations for dealing with discrete and tied-time data can also be used for time-dependent covariates. Note that the form of $\z(t)$ must be determined which brings about problems in application; see Fisher and Lin \fcite{fisher-lin-99} for a more in depth discussion on time-varying covariates and the precautions that must be taken.
+
+It is worth noting, as mentioned by Therneau et al \fcite{therneau-et-al-13}, if the effect of the time dependent covariate is predictable and \emph{linear}, it can be disregarded in the likelihood. Consider the partial likelihood of a single event with a single time-dependent covariate age, $a$, which linearly increases the risk:
+
+\begin{equation}
+    \frac{e^{a_{(i)}\beta}}{\sum_{j\in\R_i}e^{a_j\beta}}=\frac{e^{(a_{(i)}+t_({i}))\beta}}{\sum_{j\in\R_i}e^{(a_j+t_{(i)})\beta}}
+\end{equation}
+
+It is clear that the time-dependent and time-independent age are equivalent as $e^{t_{(i)}\beta}$ cancels on the RHS of the equation.
+
+\subsection{Time-Varying Coefficients}
+
+An extension to time-dependent coefficients is in direct opposition of the proportional hazards. Time-dependent coefficients can be considered, but the model will no longer be a proportional hazards model. There has been a relatively small amount of research done to extend specifically the cox model to non-proportional hazards as normally another model is more suitable in this case, e.g. one of the other hazard models suggested in the introduction. 
+
+As suggested by Therneau et al \fcite{therneau-et-al-13}, one of the simplest forms that time-dependent coefficient can take is a step function, i.e. the coefficient takes different constant values over different time intervals. One method in dealing with this is to stratify the data (see section \ref{stratification}) into groups dependent on the time interval in which their event or censoring is observed.
+
+Some continuous time-dependent coefficients can also be accommodated rather cheekily if the dependence is linear. Therneau et al \fcite{therneau-et-al-13} discussed how simple functional forms of the coeffcient function such as $\Beta(t)=a+b\log(t)$ have been used to trick software packages into thinking it is in fact the covariate that is time-dependent. Take for example 
+
+$$\z_i\Beta_i(t)=a\z_i+ b\log(t)\z_i=a\z_i+by,$$
+
+where $y=\log(t)\z_i$ is a special time-dependent covariate which was shown to be a simpler extension above. The intercept $a\z_i$, provided $z_i$ is time-invariant, will be absorbed by the baseline hazard in fitting the model, thus leaving a time-dependent covariate and a constant coefficient.
+
+For further discussion on time-dependent coefficients, both step and continuous functions, see Zhang et al \fcite{zhang-18}.
+
+\subsection{Counting Processes}
+
+Andersen and Gill \fcite{andersen-gill-82} "discuss how this model can be extended to a model where covariate processes have a proportional effect on the intensity process of a multivariate counting process. This permits a statistical regression analysis of the intensity of a recurrent event allowing for complicated censoring patterns and time dependent covariates." I will not discuss the workings of the paper here, but it shows that the Cox model can be extended to indeed work with time-dependent covariates, time-dependent stratification and multiple events per subject. 
 
 \newpage
 \part{Variable Selection}
