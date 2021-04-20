@@ -428,8 +428,6 @@ The selected model should accurately predict future results based on the data al
 
 One last feature worth mentioning is cost of computation. Even with the advances of modern computing which reduces the impact of the efficiency of the computation, when working with very large datasets (such as are available in cancer epidemiological studies) small optimisations can sway our propensity to choose one method over another.
 
-The methods for variable selection I will talk about below give an estimator for the vector of covariate coefficients, $\hat\Beta$. An attractive property of some of the estimators is called the 'oracle property'. Fan and Li \fcite{fan2001variable} discuss the oracle property generally and with specific regard to nonconcave penalised likelihood methods. The property is such that the estimator knows the true model, and will approach the true model assymptotically, i.e. as $n\xrightarrow \infty$.
-
 \section{Subsetting Methods}
 
 Consider the vector of covariate coefficients, $\Beta=(\beta_1, \ldots, \beta_p)$. Subsetting methods, as the name suggests, involves taking subsets of the set of all covariate coefficients. In general, a subset is taken and fit to the data using to give the best model possible
@@ -498,7 +496,7 @@ The above methods can be combined in a stepwise iterative process that searches 
     Remove the covariate from the model\;
     }
     }
-    \caption{My.Stepwise.coxph}\label{alg:my.stepwise.coxph}
+    \caption{My.Stepwise.coxph (from Hu \fcite{hu2017my})}\label{alg:my.stepwise.coxph}
 \end{algorithm}
 
 \subsection{Model Comparison}\label{sec:model-comparison}
@@ -533,13 +531,13 @@ For more detailed comparison of the two, see Yang \fcite{yang2005can} and Vrieze
 
 In $k$-fold CV, the data is randomly split into $k$ partitions of roughly equal size. $k-1$ of these sets are then used to train the data with the other partition used for testing the fitted model's predictive accuracy. Each partition is omitted from the training set once and the testing error is calculated for each repetition. The sum or mean of the errors is then calculated for the given hyper-parameters. In \cref{fig:k-fold-cv} the "Stored metrics" are the test errors. It is possible to include the training error as well but this is not as common. The test error can be calculated in a variety of ways: commonly, MSE or a similar loss function is used.
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \includegraphics[width=\textwidth]{k-fold-cv}
   \caption{5-fold cross-validation (from Kubben et al \fcite{kubben2019fundamentals}}
   \label{fig:k-fold-cv}
 \end{figure}
 
-K-fold cross validation has been extended to repeat the entire experiment. A common variation is 10 times 10-fold cross-validation in which we split the data into 10 partitions, used each combination of 9 folds to train the data with the remaining partition to calculate the test error. This random splitting into 10 partitions is repeated 10 times and the 10-fold cross-validation carried out for each repetition. The 100 calculated test errors are then averaged (or summed) to give the mean (or total) error for the given hyperparameters.
+K-fold cross validation has been extended to repeat the entire experiment. A common variation is 10 times 10-fold cross-validation in which we split the data into 10 partitions, used each combination of 9 folds to train the data with the remaining partition to calculate the test error. This random splitting into 10 partitions is repeated 10 times and the 10-fold cross-validation carried out for each repetition. The 100 calculated test errors are then averaged (or summed) to give the mean (or total) error for the given hyper-parameters.
 
 A special case of k-fold CV is leave-one-out cross-validation (LOOCV) in which $k=n$, where $n$ is the number of observations. LOOCV generally results in low variance in the calculated test errors as there is less variation between the training sets than if the more data is left for the test set.
 
@@ -547,7 +545,7 @@ Generalized cross validation (GCV) was introduced by Craven and Wahba \fcite{cra
 
 \subsubsection{Minimum Description Length}\label{sec:mdl}
 
-Minimum description length (MDL) is a model selection principle at its core. Sometimes referred to as a formalization of Occam's Razor, it can be defined as follows:
+Minimum description length (MDL) is a model selection principle at its core. Sometimes referred to as a formalisation of Occam's Razor, it can be defined as follows:
 
 \begin{definition}[Minimum Description Length]\label{def:mdl}
 The model which can best describe the data with the least information stored about the model itself should be selected.
@@ -555,13 +553,11 @@ The model which can best describe the data with the least information stored abo
 
 The MDL is not an algorithm or a method in itself, but a principle which is applicable and followed in many settings. For a thorough look at MDL, I refer the reader to Grunwald \fcite{grunwald2007minimum}. Think about what the description length is: information must be stored to describe the model and the data. The more information we store about the model, the lower the cost of describing the data and vice versa. This can be likened to the bias-variance tradeoff.
 
-\section{Penalized Likelihood Methods}
+\section{Penalized Likelihood Methods}\label{sec:penalized-likelihood-methods}
 
 In theory, one could find a suitable estimate to the parameter vector $\Beta$ by finding the MLE as given by \cref{mle}. This rarely gives the best model as the estimate tends to describe the observed data very well but is lacking in predictive power when applied to new results due to overfitting.
 
-A common technique used to make the model more interpretable is called regularisation. Formally, regularisation is defined as the process of adding information to an ill-posed optimisation problem to prevent overfitting. In the context of this thesis, regularisation is synonymous with penalization of a loss function.
-
-The AIC and BIC mentioned above are actually penalized likelihood methods and could theoretically be used in the same way as the methods I will talk about below. This is generally not a preferred method though.
+A common technique used to make the model more interpretable is called regularisation. Formally, regularisation is defined as the process of adding information to an ill-posed optimisation problem to prevent overfitting. In the context of this thesis, regularisation is synonymous with penalisation of a loss function. The AIC and BIC mentioned above are actually penalized likelihood methods and could theoretically be used in the same way as the methods I will talk about below. This is generally not a preferred method though.
 
 \begin{definition}[Loss Function]
 A function which gives a curve of loss in optimisation problems.
@@ -579,31 +575,81 @@ Some commonly used loss functions are
 
 This is by no means an exhaustive list and in fact the methods discussed below do not use any of these loss functions.
 
-The standard approach taken when dealing with censored survival analysis is to regularise the negative log-likelihood function by adding a penalty function. The form of this penalty varies by method and I will discuss some of the popular penalties below. A desirable feature of the penalty function is convexity; if the penalty function is convex, the minimisation of the penalised loss function become a convex optimisation problem for which there are many very efficient solutions.
+The standard approach taken when dealing with censored survival analysis is to regularise the negative log-likelihood function by adding a penalty function. The form of this penalty varies by method and I will discuss some of the popular penalties below. Note that it need not be the exact log-likelihood used in the loss function, more often than not either the Breslow or Efron approximation (see \cref{sec:partial-likelihood}) to the likelihood function is used.
 
-Note that it need not be the exact log-likelihood used in the loss function, more often than not either the Breslow or Efron approximation to the likelihood function is used.
+One desirable feature of the penalty function is convexity; if the penalty function is convex, the minimisation of the penalised loss function become a convex optimisation problem for which there are many very efficient solutions.
 
-It can be seen that using various penalties in the loss function, ie. adding them to the MLE, is basically equivalent to assuming some prior distribution in the MAP. This prior distribution or penalty can be selected based on prior knowledge or desired features of the model, e.g. sparsity.
+Fan and Li \fcite{fan2001variable} listed three properties that a good penalty function will produce in an estimator:
+
+\begin{enumerate}
+    \item Asymptotic unbiasedness: unnecessary modelling bias should be avoided;
+    \item Sparsity: the estimator is a thresholding rule which should set small estimated coefficients to zero to reduce complexity; and
+    \item Continuity: avoids instability in model prediction.
+\end{enumerate}
+
+The choice of penalty function will affect what methods can be used for finding or estimating the regularisation paths \cref{sec:regularisation-paths} and the features of the resulting estimator. The necessary conditions for unbiasedness, sparsity and continuity are discussed by Antoniadis and Fan \fcite{antoniadis2001regularization}.
+
+It can be seen that using various penalties in the loss function, ie. adding them to the MLE, is basically equivalent to assuming some prior distribution in the MAP. This prior distribution or penalty can be selected based on prior knowledge or desired features of the model.
 
 Fan and Li \fcite{fan2001variable} proposed a general form of a penalized likelihood function. Similar to this form but adapted slightly to the notation used here, a general form of the penalised likelihood function is
 
 \begin{equation}\label{eqn:general-penalised-likelihood}
-    l(\Beta;\x)-\lambda\sum_{j=1}^pg(|\beta_j|),
+    l(\Beta;\x)-P_{\THETA}(\Beta),
 \end{equation}
 
-where $g(\cdot)$ is a penalty function and $\lambda$ is the tuning parameter.
+where $P_{\THETA}(\Beta)$ is a penalty function taking parameter vector $\Beta$ and tuning or hyper-parameter vector $\THETA$.
 
-Different penalty functions obviously penalise the likelihood in different ways, resulting in different methods that can be used and different features of the estimator which will result.
+\subsection{Hyper-parameter Estimation}\label{sec:hyper-parameter-estimation}
 
-\subsection{Hyperparameter Estimation}
+The problem of model selection can very often be decomposed into a problem of parameter selection (those within the model) and hyper-parameter estimation (those outside of the model). The hyper-parameters are those which are not involved in the likelihood itself, but are instead tuning parameters in the method to find the best estimate. The hyper-parameters can be found using the same methods discussed in \cref{sec:model-comparison} and from most studies, it seems that cross validation is the most popular method by which to find the optimal tuning parameters. 
 
-The problem of model selection can very often be decomposed into a problem of parameter selection (those within the model) and hyper-parameter estimation (those outside of the model). The hyperparameters are those which are not involved in the likelihood itself, but are instead tuning parameters in the method to find the best estimate. The hyperparameters can be found using the same methods discussed in \cref{sec:model-comparison} and from most studies, it seems that cross validation is the most popular method by which to find the optimal tuning parameters. 
-
-Roy and Chakraborty \fcite{roy2017selection} suggested Empirical Bayes as a method for selecting hyperparamters. The advantage of using Bayesian methods for selecting hypermarameters is they are informed methods, i.e. they remember previous evaluations and use this in the calculation of future estimates. This can save a lot of computational resources at the risk of adding bias if not handled with care. See \cref{sec:bias-variance} for more information.
+Roy and Chakraborty \fcite{roy2017selection} suggested Empirical Bayes as a method for selecting hyper-parameters. The advantage of using Bayesian methods for selecting hyper-parameters is they are informed methods, i.e. they remember previous evaluations and use this in the calculation of future estimates. This can save a lot of computational resources at the risk of adding bias if not handled with care. See \cref{sec:bias-variance} for more information.
 
 Some other methods such as grid search and random search can also be used, but again these are a frequentist approach and are uninformed. There are many other methods which I will not discuss here, but this gives an idea of some of the most popular methods and their utility.
 
-Friedman et al \fcite{friedman2010regularization} and Hastie et al \fcite{hastie2009elements} both explain a fairly standard practice called the one-standard-error or one-standard-deviation rule, although the rule dates back at least to the derivation by Breiman et al \fcite{breiman1984classification}. Put simply, once the value of the tuning parameter is found that minimises the penalised likelihood function, $\lambda_{\min}$, it is generally seen to overfit the model. To counteract this, the most parsimonious model with an error within one-standard-error from $\lambda_{\min}$ is chosen. Oftentimes, this is simply the model given by $\lambda_{\min}+1\textrm{s.d.}$ as this gives the highest value of $\lambda$ within one-standard-deviation, thus penalising the model more harshly for including parameters and hopefully giving a more interpretable and accurate model. This value of the hyperparameter is referred to as $\lambda_{1se}$.
+Friedman et al \fcite{friedman2010regularization} and Hastie et al \fcite{hastie2009elements} both explain a fairly standard practice called the one-standard-error or one-standard-deviation rule, although the rule dates back at least to the derivation by Breiman et al \fcite{breiman1984classification}. Put simply, once the value of the tuning parameter is found that minimises the penalised likelihood function, $\lambda_{\min}$, it is generally seen to overfit the model. To counteract this, the most parsimonious model with an error within one-standard-error from $\lambda_{\min}$ is chosen. Oftentimes, this is simply the model given by $\lambda_{\min}+1\textrm{s.d.}$ as this gives the highest value of $\lambda$ within one-standard-deviation, thus penalising the model more harshly for including parameters and hopefully giving a more interpretable and accurate model. This value of the hyper-parameter is referred to as $\lambda_{1se}$.
+
+\subsection{Regularisation Paths}\label{sec:regularisation-paths}
+
+If a model has at most $p$ covariates, then a regularisation path is a path in a $p$-dimensional space. The path is determined by the coefficient estimator for a given value of the hyper-parameter vector $\THETA$. Generally, only the tuning $\lambda$ is varied and the other hyper-parameters are fixed beforehand. This is due to the computational cost of multivariate hyper-parameter inference. It is standard practice to follow Fan and Li \fcite{fan2001variable} in taking a Bayesian approach and estimating the other parameters from prior knowledge. See \cref{sec:hyper-parameter-estimation} for more methods of estimation, but know it is standard to infer hyper-parameters other than the tuning parameter from prior knowledge, a distinctly Bayesian approach.
+
+If $\THETA$ is one-dimensional and equal to the tuning parameter, or the other hyper-parameters of $\THETA$ are fixed as mentioned, the regularisation path can be thought of as a $1$-dimensional function of $\THETA$ in $p$-dimensional space. 
+
+The regularized function, i.e. the maximum penalised partial likelihood function in the case of Cox PH regression, determines the rough shape of the regularisation pathways. However, different algorithms will differ slightly; some are continuous, some are piece-wise continuous, et cetera. The efficiency of calculation of the regularisation path, generally determines the computational cost of the method.
+
+I will not go into detail on the theory or background of regularisation paths here, as generally speaking the variable selection methods I will be testing in the simulation studies will already have selected their chosen technique of path calculation. I will however explain some of the popular algorithms I have mentioned above as they play a substantial role in computation time which can be a determining factor in when a particular method can be used.
+
+\iffalse
+\subsubsection{Newton-Raphson}
+
+\subsubsection{LARS}
+%https://en.wikipedia.org/wiki/Least-angle_regression
+%http://finzi.psych.upenn.edu/library/covTest/html/lars.glm.html
+
+\subsubsection{LARS-EN}
+
+\subsubsection{Coordinate Descent}
+\fi
+\subsubsection{Forward Stepwise Regression}
+
+Forward Stepwise and Forward Stagewise regression are old techniques typically attributed to Efryomson \fcite{efroymson1966stepwise}, and Draper and Smith \fcite{draper1966applied}. Efron et al \fcite{efron2004least} then brought the methods back to the forefront upon deriving a connection between forward stagewise estimates and the solution path to the LASSO\ucite{tibshirani2015general} which I spoke about in \cref{sec:LASSO}. The algorithm is given concisely by Tibshirani \fcite{tibshirani2015general}:
+
+\begin{algorithm}[H]
+    Fix $\epsilon>0$\;
+    Initialise $\Beta^{(0)}=0$\;
+    \For{$k=1,2,\ldots$}{
+    $\Beta^{(k)}=\Beta^{(k-1)}+\epsilon\cdot\textrm{sign}(\z_i^T(t-\z\Beta^{(k-1)}))\cdot e_i$, where $i\in\argmax_{j=1,\ldots,p}|\z_i^T(t-\z\Beta^{(k-1)})|.$
+    }
+    \caption{Forward stagewise regression (from Tibshirani \fcite{tibshirani2015general})}\label{alg:forward-stagewise-regression}
+\end{algorithm}
+
+Following the results of Bertsimas et al \fcite{bertsimas2016best}, Hastie et al \fcite{hastie2017extended} conducted a thorough comparison of the forward stepwise regression, best subset selection and the LASSO. They summarised their findings as follows:
+
+\begin{itemize}
+    \item best subset selection generally outperforms lasso when SNR is high, conversely the opposite is true when SNR is low; 
+    \item best subset selection and forward stepwise perform quite similarly throughout;
+    \item relaxed LASSO performed similarly to the optimal methods at high and low SNR and was dubbed the overall winner.
+\end{itemize}
 
 \subsection{Norms}
 
@@ -693,7 +739,7 @@ Ridge regression has been seen in multiple studies to be very accurate in predic
 
 Consider the ridge and lasso penalties. They can be visualised as follows:
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \includegraphics[width=\textwidth]{lasso-ridge}
   \caption{Estimation picture for the LASSO (left) and ridge regression(right) (from Hastie et al \fcite{hastie2009elements}}
   \label{fig:lasso-ridge}
@@ -701,31 +747,67 @@ Consider the ridge and lasso penalties. They can be visualised as follows:
 
 \Cref{fig:lasso-ridge} is a redrawing of a diagram dating back to Tibshirani \fcite{tibshirani1996regression}. The contours show the error and constraint functions and the shaded areas show the regions represented by the $L_1$-norm and $L_2$-norm respectively. On the left $|\beta_1|+|\beta_2|\leq t$ and on the right $\beta_1^2+\beta_2^2\leq t^2$. It can be seen in the diagram that the LASSO intercepts the constraint function along the $\beta_2$ axis, whereas the ridge regression intercepts the same contour at some positive value of both $\beta_1$ and $\beta_2$. This follows the explanation that the LASSO promotes a sparse solution as the estimator $\hat\Beta^{lasso}$ will have $\beta_1=0$ in this case. Thinking intuitively about the norm functions and their corresponding shapes given in \cref{fig:unit-circles}, it is obvious why $p\leq 1$ is a requirement to produce sparse solutions.
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \includegraphics[width=\textwidth]{unit-circles}
   \caption{Unit circles of the Minkowski Distance in 2d with varying $p$ (from Urquiza et al \fcite{urquiza2015empirical}}
   \label{fig:unit-circles}
 \end{figure}
 
-\subsection{Bayesian Priors}
-\subsubsection{Non-local priors}
-Fan li 2002 [5]
-\subsubsection{Shrinkage Priors}
-%The Bayesian Lasso
-\subsubsection{Selection Priors}
-\subsubsection{Grouping Priors}
-\subsubsection{Jeffrey's Priors}
-\subsubsection{g-priors}
-\subsubsection{Mixture Priors}
-\subsection{More Frequentist Penalties}
+\subsection{Nonconcave (Nonconvex) Penalized Likelihood Methods}
+
+Convexity (or concavity) was mentioned at in the introduction to \cref{sec:penalized-likelihood-methods} as a desirable feature. This is due the extremely efficient techniques that exist to solve convex (or concave) optimisation problems. As a preliminary note to avoid confusion in the following literature, concavity and convexity are used interchangeably because a concave function is simply the negative of a convex function. Similarly, a nonconcave function is the negative of a nonconvex function.
+
+Nonconcave penalized likelihood methods were suggested by Fan and Li \fcite{fan2001variable} for use in generalized linear models and then adapted by Fan and Li \fcite{fan2002variable} for use with the Cox PH Model.
+
+\begin{definition}[Oracle Property]\label{def:oracle-property}
+    The resulting estimator correctly predicts the model as well as if the model were already known (sparsity) and it has the optimal estimation rate (asymptotic normality).
+\end{definition}
+
+The LASSO is a member of the family of nonconcave penalty functions discussed, but was shown to not have the oracle property. The oracle property for $L_\p$ norms returns for $\p<1$ with a suitable choice of $\lambda_n$.
+
+\subsubsection{HARD}
+
+The name HARD refers to the procedure related to the hard thresholding penalty. The penalty function was introduced by Fan \fcite{fan1997comments} and shown in Fan and Li \fcite{fan2001variable, fan2002variable} to possess the oracle property. However, it does not satisfy conditions for continuity as the penalty is too steep.
+
+The penalty function is given by
+
+\begin{equation}
+    n\cdot P_{\lambda}(\Beta)=n\sum_{j=1}^q\Big(\lambda^2 - (|\beta_j|-\lambda)^2I(|\beta_j|<\lambda)\Big).
+\end{equation}
+
+I will not go into further detail here about HARD as is is not regularly implemented due to its lack of continuity and the resulting instability.
+
+\subsubsection{SCAD}
+
+The smoothly clipped absolute deviation (SCAD) penalty was introduced by Fan \fcite{fan1997comments} and shown in Fan and Li \fcite{fan2001variable, fan2002variable} to satisfy all the conditions as laid out by Antoniadis and Fan \fcite{antoniadis2001regularization} and possess the oracle property.
+
+The penalty function is given by
+
+\begin{equation}
+    n\cdot P_\lambda'(\Beta) = n\sum_{j=1}^q\Big(I(|\beta_j|\leq\lambda)+\frac{(a\lambda-|\beta_j|)_{+}}{(a-1)\lambda}I(|\beta_j|>\lambda)\Big).
+\end{equation}
+
+Brehany and Lee \fcite{brehany2015ncvreg} updated the \textbf{ncvreg} package to include his new \emph{nvcsurv} functions for fitting nonconvex penalised likelihood functions in the Cox PH model using coordinate descent discussed by Brehany and Huang \fcite{breheny2011coordinate}.
+
+\begin{figure}[ht!]
+  \includegraphics[width=\textwidth]{penalty-functions}
+  \caption{Penalty Functions (from Fan and Li \fcite{fan2002variable}}
+  \label{fig:penalty-functions}
+\end{figure}
+
+The penalty functions are drawn in \cref{fig:penalty-functions} for some $L_\p$-norm penalties, the HARD penalty, and the SCAD penalty. From this, it can be seen that the HARD is indeed harsher than SCAD and so it makes sense that it is not continuous. There is also a similarity in shape around 0 between SCAD and the LASSO. It is then obvious why SCAD was suggested as an alternative to LASSO which does not penalise high coefficients as harshly and thus should lower the bias in the model. This observation reinforces that SCAD has the oracle property and LASSO does not.
+
+\subsubsection{Minimax Concave Penalty}
+
+\subsection{More Penalty Functions}
+
 \subsubsection{Elastic Net}
 
-%add ref to sou and hastie 2005
-The elastic net penalty is a convex combination of the $L_1$-norm and $L_2$-norm penalties proposed by Zou and Hastie \fcite{}. They showed that it had a grouping effect, meaning strongly correlated covariates tended to be included or excluded together. It is said to be very useful when $p\gg n$ and generally outperforms the LASSO while still promoting sparsity. In this paper Zou and Hastie \fcite{} also proposed an algorithm LARS-EN as an efficient computation method of the elastic net regularization pathways. Zou and Hastie \fcite{} produced \textbf{elasticnet} as an R package implementation of their method.
+The elastic net penalty is a convex combination of the $L_1$-norm and $L_2$-norm penalties proposed by Zou and Hastie \fcite{zou2005regularization}. They showed that it had a grouping effect, meaning strongly correlated covariates tended to be included or excluded together. It is said to be very useful when $p\gg n$ and generally outperforms the LASSO while still promoting sparsity. In this paper Zou and Hastie \fcite{zou2005regularization} also proposed an algorithm LARS-EN as an efficient computation method of the elastic net regularisation pathways. Zou and Hastie \fcite{zou2004elasticnet} produced \textbf{elasticnet} as an R package implementation of their method.
 
-Friedman et al \fcite{friedman2010regularization} developed the method for the generalized linear model and proposed using cyclic coordinate descent computed along the regularization path. They produced \textbf{glmnet} as an R package implementation of the elastic net penalty for generalized linear models using coordinate descent.
+Friedman et al \fcite{friedman2010regularization} developed the method for the generalized linear model and proposed using cyclic coordinate descent computed along the regularisation path. Friedman et al \fcite{friedman2009glmnet} produced \textbf{glmnet} as an R package implementation of the elastic net penalty for generalized linear models using coordinate descent.
 
-Simon et al \fcite{} then introduced the method to the Cox model, again using cyclic coordinate descent and warm starts to find the solution. They showed that their method of cyclic coordinate descent was faster than the Newton-Raphson method or Lars-like algorthms used by others. Friedman et al \fcite{} gave an update of the \textbf{glmnet} package to include the new algorithm \emph{coxnet} by Simon et al \fcite{}
+Simon et al \fcite{simon2011regularization} then introduced the method to the Cox model, again using cyclic coordinate descent and warm starts to find the solution. They showed that their method of cyclic coordinate descent was faster than the Newton-Raphson method or Lars-like algorthms used by others. Friedman et al \fcite{friedman2011glmnet} gave an update of the \textbf{glmnet} package to include the new algorithm \emph{coxnet} by Simon et al \fcite{simon2011regularization}.
 
 The actual penalty function of the elastic net for the cox model is given by
 
@@ -752,11 +834,9 @@ The relaxed LASSO was first proposed by Meinshausen \fcite{meinshausen2007relaxe
     \hat\Beta^{relax}(\lambda,\gamma)=\gamma\hat\Beta^{lasso}(\lambda)+(1-\gamma)\hat\Beta^{LS}(\lambda),
 \end{equation}
 
-with hyperparameters $\lambda\geq0$ and $\gamma\in[0,1]$.
+with hyper-parameters $\lambda\geq0$ and $\gamma\in[0,1]$.
 
 I will not go into more detail here on the workings and properties of the relaxed LASSO, but know it has been found by Hastie et al \fcite{hastie2017extended} that the relaxed LASSO performs as well as LASSO in its preferred low SNR scenarios and performs as well as best subset selection in its preferred high SNR scenarios.
-
-\subsubsection{SCAD}
 
 \subsubsection{Adaptive LASSO}
 adaptive lasso and it's oracle properties
@@ -767,14 +847,42 @@ adaptive lasso and it's oracle properties
 %Meier et al 2008
 
 \subsubsection{Sparse-Group LASSO}
-\subsubsection{HARD}
 
 \subsubsection{Local Quadratic Approximation}
 %Fan & Li 2001
-\subsubsection{Minorization-Maximisation}
+\subsubsection{Minorisation-Maximisation}
 %Hunter & Li 2005 VARIABLE SELECTION USING MM ALGORITHMS
 \subsubsection{Firth's Penalised Likelihood}
 %http://finzi.psych.upenn.edu/library/coxphf/html/coxphf.html
+
+\part{Simulation Study}
+- Convergence
+- Model Stability
+
+
+- BeSS
+- bestsubset
+- My.stepwise.coxph
+- glmnet
+- ncvreg
+
+\iffalse
+
+\part{Real-World Example}
+
+\part{Stuff I want to include}
+
+\section{whoops}
+\subsection{Bayesian Priors}
+\subsubsection{Non-local priors}
+Fan li 2002 [5]
+\subsubsection{Shrinkage Priors}
+%The Bayesian Lasso
+\subsubsection{Selection Priors}
+\subsubsection{Grouping Priors}
+\subsubsection{Jeffrey's Priors}
+\subsubsection{g-priors}
+\subsubsection{Mixture Priors}
 
 \section{Resampling}
 %https://benthamopen.com/FULLTEXT/TOPHJ-12-136
@@ -805,43 +913,6 @@ Strong Learner
 \subsection{Stability Selection}
 %https://www.hindawi.com/journals/cin/2017/2747431/
 
-\section{Regularization Paths}
-
-If a model has at most $p$ covariates, then a regularization path is a path in a $p$-dimensional space. The path is determined by the value of all the coefficients for a given value of the hyperparameter vector $\THETA$. The regularized function, i.e. the maximum penalised partial likelihood function in the case of Cox PH regression, determines the rough shape of the regularization pathways. However, different algorithms will differ slightly; some are continuous, some are piece wise continuous, et cetera. The efficiency of calculation of the regularization path, generally determines the computational cost of the method.
-
-I will not go into detail on the theory or background of regularization paths here, as generally speaking the variable selection methods I will be testing in the simulation studies will already have selected their chosen technique of path calculation. I will however explain some of the popular algorithms I have mentioned above as they play a substantial role in computation time which can be a determining factor in when a particular method can be used.
-
-\subsection{Newton-Raphson}
-
-\subsection{LARS}
-%https://en.wikipedia.org/wiki/Least-angle_regression
-%http://finzi.psych.upenn.edu/library/covTest/html/lars.glm.html
-
-\subsubsection{LARS-EN}
-
-\subsection{Coordinate Descent}
-
-\subsection{Forward Stepwise Regression}
-
-Forward Stepwise and Forward Stagewise regression are old techniques typically attributed to Efryomson \fcite{efroymson1966stepwise}, and Draper and Smith \fcite{draper1966applied}. Efron et al \fcite{efron2004least} then brought the methods back to the forefront upon deriving a connection between forward stagewise estimates and the solution path to the LASSO\ucite{tibshirani2015general} which I spoke about in \cref{sec:LASSO}. The algorithm is given concisely by Tibshirani \fcite{tibshirani2015general}:
-
-\begin{algorithm}[H]
-    Fix $\epsilon>0$\;
-    Initialise $\Beta^{(0)}=0$\;
-    \For{$k=1,2,\ldots$}{
-    $\Beta^{(k)}=\Beta^{(k-1)}+\epsilon\cdot\textrm{sign}(\z_i^T(t-\z\Beta^{(k-1)}))\cdot e_i$, where $i\in\argmax_{j=1,\ldots,p}|\z_i^T(t-\z\Beta^{(k-1)})|.$
-    }
-    \caption{Forward stagewise regression (from Tibshirani \fcite{tibshirani2015general})}\label{alg:forward-stagewise-regression}
-\end{algorithm}
-
-Following the results of Bertsimas et al \fcite{bertsimas2016best}, Hastie et al \fcite{hastie2017extended} conducted a thorough comparison of the forward stepwise regression, best subset selection and the LASSO. They summarised their findings as follows:
-
-\begin{itemize}
-    \item best subset selection generally outperforms lasso when SNR is high, conversely the opposite is true when SNR is low; 
-    \item best subset selection and forward stepwise perform quite similarly throughout;
-    \item relaxed LASSO performed similarly to the optimal methods at high and low SNR and was dubbed the overall winner.
-\end{itemize}
-
 \section{More Selection Methods}
 
 \subsection{Heirarchical Bayesian Method} 
@@ -867,15 +938,4 @@ blessing of dimensionality
 \subsection{Case-Cohort Studies}
 %Variable selection for case-cohort studies with failure time outcome - Ni et al 2016
 
-\part{Simulation Study}
-- Convergence
-- Model Stability
-
-
-- BeSS
-- bestsubset
-- My.stepwise.coxph
-- glmnet
-- 
-
-\part{Real-World Example}
+\fi
