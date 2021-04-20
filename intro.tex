@@ -16,7 +16,7 @@ Objectives 1 and 3 are inherently linked as it is useful to understand the relat
 
 \subsection{Description of Survival Times}
 
-I will now introduce some terms and define them similarly to Cox \fcite{cox72}:
+I will now introduce some terms and define them similarly to Cox \fcite{cox1972regression}:
 
 \begin{definition}[Survivor Function]\label{survivor-function}
 The probability that the random variable, $T$, representing failure time is greater than or equal to a specified time $t$:
@@ -124,7 +124,7 @@ When considering the two sample problem and the aim is to compare the survival t
 
 It is important in many fields to find the effect of variables on survival time. Parametric and semi-parametric models are widely used for estimating and describing these effects due to the ease of interpretation and computation. Rossell and Rubio \fcite{rossellrubio} gives a great introduction to hazard-based regression models for survival analysis. 
 
-One model is the proportional hazards model introduced by Cox \fcite{cox72}. This is the main focus of this paper and will be explained in detail later. Some other hazards models which are explained by \cite{rossellrubio} are:
+One model is the proportional hazards model introduced by Cox \fcite{cox1972regression}. This is the main focus of this paper and will be explained in detail later. Some other hazards models which are explained by \cite{rossellrubio} are:
 \begin{itemize}
     \item Accelerated Hazards Model - the covariates have a time-scaling effect on the hazard function.
     \item Hybrid Hazards Model - a combination of accelerated hazards and proportional hazards models.
@@ -136,4 +136,4 @@ Among these, the Accelerated Failure Time (AFT) model is one of the oldest and t
 
 \subsection{Thesis Structure}
 
-In this thesis, I will first explain and discuss the proportional hazards model introduced in Cox \fcite{cox72} and some of the proposed extensions. In part II, the problem of variable selection methodology is explored theoretically before testing some of the methods using simulations and real world data in R. Part IV is then a closing discussion with some personal remarks. An appendix has been included with the code used to test the methods.
+In this thesis, I will first explain and discuss the proportional hazards model introduced in Cox \fcite{cox1972regression} and some of the proposed extensions. In part II, the problem of variable selection methodology is explored theoretically before testing some of the methods using simulations and real world data in R. Part IV is then a closing discussion with some personal remarks. An appendix has been included with the code used to test the methods.

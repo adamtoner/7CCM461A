@@ -1,7 +1,7 @@
 \newpage
 \part{The Model}
 
-The Proportional Hazards Model is one of the most used statistical techniques in the world. It was introduced by Cox \fcite{cox72} with the aim of extending the results of Kaplan and Meier \fcite{kaplanmeier} "to the comparison of life tables and more generally to the incorporation of regression-like arguments into life-table analysis." Interestingly, these two papers are two of the most cited papers in statistics according to Ryan and Woodall \fcite{ryanwoodall}. So why is the Cox model so popular?
+The Proportional Hazards Model is one of the most used statistical techniques in the world. It was introduced by Cox \fcite{cox1972regression} with the aim of extending the results of Kaplan and Meier \fcite{kaplanmeier} "to the comparison of life tables and more generally to the incorporation of regression-like arguments into life-table analysis." Interestingly, these two papers are two of the most cited papers in statistics according to Ryan and Woodall \fcite{ryanwoodall}. So why is the Cox model so popular?
 
 The Cox model is very attractive to statisticians because it is semi-parametric. What this effectively means is the hazard is divided into two parts:
 
@@ -12,7 +12,7 @@ The Cox model is very attractive to statisticians because it is semi-parametric.
 
 This separation allows statisticians to build models based on the covariates without explicit or iterative calculation of the baseline hazard.
 
-In this part of the thesis, I will describe the model in detail as proposed by Cox and explore surrounding methods and extensions. In section \ref{background}, I will give a history of the statistics used by Cox in the development of the model and the assumptions it is based upon. \Cref{sec:partial-likelihood} will consider the partial likelihood function as discussed in Cox \fcite{cox75}, why it can be consider it a full likelihood and why this is of benefit. Some methods of approximating and extending the original partial likelihood introduced by Cox \fcite{cox72} (which dealt solely with continuous time events) will be introduced briefly. Section \ref{baseline} will deal with the motives and methods for estimation of the baseline hazard.
+In this part of the thesis, I will describe the model in detail as proposed by Cox and explore surrounding methods and extensions. In section \ref{background}, I will give a history of the statistics used by Cox in the development of the model and the assumptions it is based upon. \Cref{sec:partial-likelihood} will consider the partial likelihood function as discussed in Cox \fcite{cox75}, why it can be consider it a full likelihood and why this is of benefit. Some methods of approximating and extending the original partial likelihood introduced by Cox \fcite{cox1972regression} (which dealt solely with continuous time events) will be introduced briefly. Section \ref{baseline} will deal with the motives and methods for estimation of the baseline hazard.
 
 \section{Background}\label{background}
 
@@ -42,11 +42,11 @@ In the commonly used methods, increased censoring will lead to an increase in bi
 
 Robins et al \fcite{robins-rotnitzky-92, robins-93, robins-finkelstein-00} discuss methods to deal censoring to produce consistent and asymptotically normal parameter estimation in the presence of censoring. The approach taken is to assume that given survival to a certain time $t_{(i)}$ and the covariate values $\z_{(i)}$, the censoring the in following interval is independent of survival time. This is referred to as  missing at random (MAR). However these methods are not commonly used and in the usual process as it is not always certain that the data is MAR.
 
-Other possibilities are missing completely at random (MCAR) in which missingness / censoring occurs entirely at random, i.e. independently of the covariates and unknown parameters. Cox \fcite{cox72} stated this was an unsatisfactory assumption and should not be used. The last type of missing data which is relatively common is missing not at random (MNAR) in which data is assumed to be missing or censored due to some condition or a dependence on covariates. E.g. in a depression study where patients are more likely to stop checking in if they become more depressed.
+Other possibilities are missing completely at random (MCAR) in which missingness / censoring occurs entirely at random, i.e. independently of the covariates and unknown parameters. Cox \fcite{cox1972regression} stated this was an unsatisfactory assumption and should not be used. The last type of missing data which is relatively common is missing not at random (MNAR) in which data is assumed to be missing or censored due to some condition or a dependence on covariates. E.g. in a depression study where patients are more likely to stop checking in if they become more depressed.
 
 \subsection{Proportional Hazards}
 
-The assumption of proportional hazards is the basis of the model introduced by Cox \fcite{cox72}. If we have $n$ independent and identically distributed variables $T_i$ which have the hazard distribution defined by the Cox model, it is assumed that the hazard of one individual is proportional to the hazard of any other individual.
+The assumption of proportional hazards is the basis of the model introduced by Cox \fcite{cox1972regression}. If we have $n$ independent and identically distributed variables $T_i$ which have the hazard distribution defined by the Cox model, it is assumed that the hazard of one individual is proportional to the hazard of any other individual.
 
 It can easily be seen that every hazard function is proportional to the baseline hazard under the assumption by rearranging \bref{cox-hazard} to give
 
@@ -68,7 +68,7 @@ i.e. the coefficients are time-invariant and have a scaling effect on the baseli
 
 which is clearly time invariant on the right side and so must be time invariant on the left side as well. In layman's terms, this means if a subject 1 is twice as likely to have an event as subject 2, then this hazard ratio is constant, irrespective of time.
 
-There are extensions of the Cox model discussed by Cox \fcite{cox72} to remove the proportional hazards assumption. These extensions allow for time-dependent covariates and time-dependent coefficients to be considered (see section \ref{extensions}). The extensions to the Cox model normally involve using splines or fractional polynomials, however it has been suggested in some model comparison discussions, see Patel et al \fcite{compphaft}, that more consideration be given to other hazard structures, namely the AFT. Rubio et al \fcite{rubioetal} explores the various hazard structures mentioned in the introduction and concludes that the AIC is a suitable method for selecting the hazard structure.
+There are extensions of the Cox model discussed by Cox \fcite{cox1972regression} to remove the proportional hazards assumption. These extensions allow for time-dependent covariates and time-dependent coefficients to be considered (see section \ref{extensions}). The extensions to the Cox model normally involve using splines or fractional polynomials, however it has been suggested in some model comparison discussions, see Patel et al \fcite{compphaft}, that more consideration be given to other hazard structures, namely the AFT. Rubio et al \fcite{rubioetal} explores the various hazard structures mentioned in the introduction and concludes that the AIC is a suitable method for selecting the hazard structure.
 
 \subsubsection{Testing Proportional Hazards}
 
@@ -106,11 +106,11 @@ It is often the aim to maximise the likelihood function so that we find the para
 
 The Bayesian and frequentist frameworks for statistics will be discussed in more detail in part II of this thesis, but it is worth mentioning now that the likelihood function plays a fundamental role in both. In Bayesian statistics, the maximum likelihood estimate is a special case of a maximum a posteriori estimation (MAP) in which the parameters follow a uniform prior distribution. From a frequentist standpoint, the MLE is a special case of an extremum estimator in which the objective function is the likelihood function.
 
-Cox \fcite{cox72} introduced what he misleadingly referred to as a conditional likelihood which was a likelihood function for inference about $\Beta$ conditioned on the set ${t_i}$ of instants at which failure occurs. The logic here is no information about the hazard is contributed at any point other than those times at which failure occurs. 
+Cox \fcite{cox1972regression} introduced what he misleadingly referred to as a conditional likelihood which was a likelihood function for inference about $\Beta$ conditioned on the set ${t_i}$ of instants at which failure occurs. The logic here is no information about the hazard is contributed at any point other than those times at which failure occurs. 
 
 \subsection{Continuous Time}
 
-I will first consider the case of continuous time ($m_{(i)}=1\forall i$) as Cox \fcite{cox72} did. Extensions to discrete time will be discussed below. For each failure at time $t_i$, the probability that the failure which occurs is the one observed is 
+I will first consider the case of continuous time ($m_{(i)}=1\forall i$) as Cox \fcite{cox1972regression} did. Extensions to discrete time will be discussed below. For each failure at time $t_i$, the probability that the failure which occurs is the one observed is 
 
 \begin{equation}
     \frac{\lambda(t_{(i)}; \z_i)dt}{\sum_{j\in\R_i}\lambda(t_{(i)}; \z_{j})dt} = 
@@ -169,15 +169,15 @@ Taking the log of the above likelihood will give the log-likelihood you first st
     L(\Beta,\lambda_0(\cdot);\x)=\prod_{i=1}^k\bigg(\frac{e^{w_i\Beta}}{\sum_{j\in\mathscr{R}_i}e^{w_j\Beta}}\bigg)^{\delta_i}\prod_{i=1}^k\big(\sum_{j\in\mathscr{R}_i}\lambda_0(t_{(i)})e^{w_j\Beta}\big)^{\delta_i}\big(e^{-\int_0^t\lambda_0(u)du}\big)^{\exp(w_i\Beta)}.
 \end{equation}
 
-Cox \fcite{cox72} argued that the first term here provides most of the information about $\Beta$ and the last two terms contain most of the information about $\lambda_0(\cdot)$. With this in mind, the first term can be treated as a full likelihood when inference about $\Beta$ is the aim. Thus maximising \bref{partial-likelihood-eqn} gives the maximum partial likelihood estimate (MLPE).
+Cox \fcite{cox1972regression} argued that the first term here provides most of the information about $\Beta$ and the last two terms contain most of the information about $\lambda_0(\cdot)$. With this in mind, the first term can be treated as a full likelihood when inference about $\Beta$ is the aim. Thus maximising \bref{partial-likelihood-eqn} gives the maximum partial likelihood estimate (MLPE).
 
 \subsection{Discrete Time}\label{discrete-time}
 
-Even considering just the partial likelihood and ignoring the likelihood of the nuisance parameter, problems still arise in discrete time when failure times are tied. Cox \fcite{cox72} states that a relatively ad hoc modification of the partial likelihood can be made. For a larger proportion of ties, a generalisation is required.
+Even considering just the partial likelihood and ignoring the likelihood of the nuisance parameter, problems still arise in discrete time when failure times are tied. Cox \fcite{cox1972regression} states that a relatively ad hoc modification of the partial likelihood can be made. For a larger proportion of ties, a generalisation is required.
 
 \subsubsection{Cox Method}
 
-Cox \fcite{cox72} proposed a modification (now called the "discrete method") to the partial likelihood formula to account for tied failure times by considering the logistic model. The extension is given by
+Cox \fcite{cox1972regression} proposed a modification (now called the "discrete method") to the partial likelihood formula to account for tied failure times by considering the logistic model. The extension is given by
 
 \begin{equation}
     L_{CX}(\Beta;\x)=\prod_{i=1}^k\frac{\exp(\s_{(i)}\Beta)}{\sum_{l\in\R(t_{(i)};m_{(i)})}\exp(\s_{(l)}\Beta)},
@@ -304,7 +304,7 @@ This is the Breslow estimate introduced below and should give a close starting p
     \hat{\pi}_i = \Bigg(1-\frac{e^{\z_{j(i)}\hat{\Beta}}}{\sum_{j\in\R_i}e^{-\z_j\hat{\Beta}}}\Bigg)^{\exp(\z_{j(i)}\hat{\Beta})}.
 \end{equation}
 
-The other approach was taken proposed by Breslow in his discussion of Cox's paper\ucite{cox72} in which they extended the Nelson-Aalen estimate. Cox and Oakes \fcite{coxoakes1984} (chapter 7.8) describe this estimator in detail and I would encourage the reader to look there for further information if interested. The extensions allows the estimate given by \ref{nelson-aalen-estimator-eqn} to account for the covariates present in the semi-parametric model. Similarly to the Kalbfeisch and Prentice estimator, the estimate only assigns mass to the points at which times at which event times are recorded. The baseline cumulative hazard and survivor function estimates are then
+The other approach was taken proposed by Breslow in his discussion of Cox's paper\ucite{cox1972regression} in which they extended the Nelson-Aalen estimate. Cox and Oakes \fcite{coxoakes1984} (chapter 7.8) describe this estimator in detail and I would encourage the reader to look there for further information if interested. The extensions allows the estimate given by \ref{nelson-aalen-estimator-eqn} to account for the covariates present in the semi-parametric model. Similarly to the Kalbfeisch and Prentice estimator, the estimate only assigns mass to the points at which times at which event times are recorded. The baseline cumulative hazard and survivor function estimates are then
 
 \begin{equation}
     \hat{\Lambda}_{0,BR}(t)=\sum_{i;t_i<t}\frac{d_i}{\sum_{j\in R_i} \exp(
@@ -324,6 +324,10 @@ In practice, the Breslow estimate is more commonly used, but it has the drawback
 The distribution of the baseline hazard can be specified to give a parametric proportional hazards model. Because the development of the Cox model allows the baseline hazard to be entirely arbitrary, any reasonable distribution can be used. The distribution if specified is normally chosen based on assumption or prior knowledge so that it best fits the data. This does require the making of some assumptions which introduces bias, but can greatly increase the predictive power of the model.
 
 The Weibull family of distributions is the only case in which the proportional hazards and the accelerated failure time models coincide. As a note, the exponential distribution is a special case of a Weibull distribution. Rubio et al \fcite{rubioetal} use the Exponentiated Weibull family of distributions in their paper studying general hazard structures. This is an extension of the Weibull family which introduces an extra shape parameter and can be used to describe hazard shapes of interest including: constant, bathtub, increasing, decreasing, and unimodal.
+
+\subsection{SCART}
+%Decision tree for modeling survival data withcompeting risks
+%file:///Users/adam/Documents/Projects/MSCi%20Project/Sources/09-SS047.pdf
 
 \section{Extensions}\label{extensions}
 
@@ -557,6 +561,8 @@ In theory, one could find a suitable estimate to the parameter vector $\Beta$ by
 
 A common technique used to make the model more interpretable is called regularisation. Formally, regularisation is defined as the process of adding information to an ill-posed optimisation problem to prevent overfitting. In the context of this thesis, regularisation is synonymous with penalization of a loss function.
 
+The AIC and BIC mentioned above are actually penalized likelihood methods and could theoretically be used in the same way as the methods I will talk about below. This is generally not a preferred method though.
+
 \begin{definition}[Loss Function]
 A function which gives a curve of loss in optimisation problems.
 \end{definition}
@@ -582,7 +588,7 @@ It can be seen that using various penalties in the loss function, ie. adding the
 Fan and Li \fcite{fan2001variable} proposed a general form of a penalized likelihood function. Similar to this form but adapted slightly to the notation used here, a general form of the penalised likelihood function is
 
 \begin{equation}\label{eqn:general-penalised-likelihood}
-    l(\Beta;\x)-\lambda\sum_{j=1}^pg_(|\beta_j|),
+    l(\Beta;\x)-\lambda\sum_{j=1}^pg(|\beta_j|),
 \end{equation}
 
 where $g(\cdot)$ is a penalty function and $\lambda$ is the tuning parameter.
@@ -713,6 +719,31 @@ Fan li 2002 [5]
 \subsubsection{Mixture Priors}
 \subsection{More Frequentist Penalties}
 \subsubsection{Elastic Net}
+
+%add ref to sou and hastie 2005
+The elastic net penalty is a convex combination of the $L_1$-norm and $L_2$-norm penalties proposed by Zou and Hastie \fcite{}. They showed that it had a grouping effect, meaning strongly correlated covariates tended to be included or excluded together. It is said to be very useful when $p\gg n$ and generally outperforms the LASSO while still promoting sparsity. In this paper Zou and Hastie \fcite{} also proposed an algorithm LARS-EN as an efficient computation method of the elastic net regularization pathways. Zou and Hastie \fcite{} produced \textbf{elasticnet} as an R package implementation of their method.
+
+Friedman et al \fcite{friedman2010regularization} developed the method for the generalized linear model and proposed using cyclic coordinate descent computed along the regularization path. They produced \textbf{glmnet} as an R package implementation of the elastic net penalty for generalized linear models using coordinate descent.
+
+Simon et al \fcite{} then introduced the method to the Cox model, again using cyclic coordinate descent and warm starts to find the solution. They showed that their method of cyclic coordinate descent was faster than the Newton-Raphson method or Lars-like algorthms used by others. Friedman et al \fcite{} gave an update of the \textbf{glmnet} package to include the new algorithm \emph{coxnet} by Simon et al \fcite{}
+
+The actual penalty function of the elastic net for the cox model is given by
+
+\begin{equation}
+    \lambda P_\alpha(\Beta) = \lambda\Big(\alpha\sum_{j=1}^p|\beta_j|+\frac{1}{2}(1-\alpha)\sum_{j=1}^p|\beta_j|^2\Big)
+\end{equation}
+
+This gives the two forms of the optimisation problem as
+
+\begin{align}
+    \hat\Beta^{net}(\lambda,\alpha) = \argmin_{\Beta} -l(\Beta;\x)\;\;\textrm{subject to}\;\;\alpha\sum_{j=1}^p|\beta_j|+\frac{1}{2}(1-\alpha)\sum_{j=1}^p|\beta_j|^2\leq t,\label{eqn:net-contstrained}\\
+    \hat\Beta^{net}(\lambda,\alpha)=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\bigg[(\alpha\sum_{j=1}^p|\beta_j|+\frac{1}{2}(1-\alpha)\sum_{j=1}^p|\beta_j|^2\bigg]\Big)\label{eqn:net-penalised}.
+\end{align}
+
+Consider the constraint in \cref{eqn:net-contstrained} for a moment. Based off the unit circles in \cref{fig:unit-circles}, the shape of the elastic net must be some convex combination of $p=1$ and $p=2$, and so the contour of the elastic net penalty will always lie between the diamond shape of the LASSO and the circle shape of the ridge regression.
+
+It is worth noting that the elastic net has LASSO and ridge regression both as special cases: LASSO is achieved when $\alpha=1$; ridge regression is achieved when $\alpha=0$. This means with with just \textbf{glmnet}, LASSO, ridge regression and a convex combination of the two can be analysed.
+
 \subsubsection{Relaxed LASSO}
 
 The relaxed LASSO was first proposed by Meinshausen \fcite{meinshausen2007relaxed} and then simplified by Hastie et al \fcite{hastie2017extended}. I will define it similarly to them here. Let $\hat\Beta^{lasso}(\lambda)$ be the lasso estimator for the give $\lambda$. Let $A_\lambda$ be the active set - the set of all included covariates - and $\hat\Beta_{A_\lambda}^LS$ be the least squares coefficients by fitting $T$ on $\Z_{A_\lambda}$, where $T$ is the set $\{t_i\forall i=1,\ldots n\}$ and $\Z_{A_\lambda}$ is the submatrix of set of all covariate vectors with only the $A_\lambda$ active covariates. Now let $\hat\Beta^{LS}(\lambda)$ be the $p$-dimensional version, i.e. every covariate is included padded appropriately with zeros. The relaxed LASSO estimator is then given by
@@ -723,7 +754,9 @@ The relaxed LASSO was first proposed by Meinshausen \fcite{meinshausen2007relaxe
 
 with hyperparameters $\lambda\geq0$ and $\gamma\in[0,1]$.
 
-I will not go into more detail here on the workings and properties of the relaxed LASSO, but know it has been found by Hastie et al \fcite{hastie2017extended} that the relaxed LASSO performs as well as LASSO in its preferred low SNR scenarios and performs as well as best subset selection in its preferred high SNR scenarios
+I will not go into more detail here on the workings and properties of the relaxed LASSO, but know it has been found by Hastie et al \fcite{hastie2017extended} that the relaxed LASSO performs as well as LASSO in its preferred low SNR scenarios and performs as well as best subset selection in its preferred high SNR scenarios.
+
+\subsubsection{SCAD}
 
 \subsubsection{Adaptive LASSO}
 adaptive lasso and it's oracle properties
@@ -735,7 +768,7 @@ adaptive lasso and it's oracle properties
 
 \subsubsection{Sparse-Group LASSO}
 \subsubsection{HARD}
-\subsubsection{SCAD}
+
 \subsubsection{Local Quadratic Approximation}
 %Fan & Li 2001
 \subsubsection{Minorization-Maximisation}
@@ -772,7 +805,22 @@ Strong Learner
 \subsection{Stability Selection}
 %https://www.hindawi.com/journals/cin/2017/2747431/
 
-\section{More Selection Methods}
+\section{Regularization Paths}
+
+If a model has at most $p$ covariates, then a regularization path is a path in a $p$-dimensional space. The path is determined by the value of all the coefficients for a given value of the hyperparameter vector $\THETA$. The regularized function, i.e. the maximum penalised partial likelihood function in the case of Cox PH regression, determines the rough shape of the regularization pathways. However, different algorithms will differ slightly; some are continuous, some are piece wise continuous, et cetera. The efficiency of calculation of the regularization path, generally determines the computational cost of the method.
+
+I will not go into detail on the theory or background of regularization paths here, as generally speaking the variable selection methods I will be testing in the simulation studies will already have selected their chosen technique of path calculation. I will however explain some of the popular algorithms I have mentioned above as they play a substantial role in computation time which can be a determining factor in when a particular method can be used.
+
+\subsection{Newton-Raphson}
+
+\subsection{LARS}
+%https://en.wikipedia.org/wiki/Least-angle_regression
+%http://finzi.psych.upenn.edu/library/covTest/html/lars.glm.html
+
+\subsubsection{LARS-EN}
+
+\subsection{Coordinate Descent}
+
 \subsection{Forward Stepwise Regression}
 
 Forward Stepwise and Forward Stagewise regression are old techniques typically attributed to Efryomson \fcite{efroymson1966stepwise}, and Draper and Smith \fcite{draper1966applied}. Efron et al \fcite{efron2004least} then brought the methods back to the forefront upon deriving a connection between forward stagewise estimates and the solution path to the LASSO\ucite{tibshirani2015general} which I spoke about in \cref{sec:LASSO}. The algorithm is given concisely by Tibshirani \fcite{tibshirani2015general}:
@@ -794,14 +842,11 @@ Following the results of Bertsimas et al \fcite{bertsimas2016best}, Hastie et al
     \item relaxed LASSO performed similarly to the optimal methods at high and low SNR and was dubbed the overall winner.
 \end{itemize}
 
+\section{More Selection Methods}
+
 \subsection{Heirarchical Bayesian Method} 
 %https://pubmed.ncbi.nlm.nih.gov/9147593/
-\subsection{LARS}
-%https://en.wikipedia.org/wiki/Least-angle_regression
-%http://finzi.psych.upenn.edu/library/covTest/html/lars.glm.html
-\subsection{SCART}
-%Decision tree for modeling survival data withcompeting risks
-%file:///Users/adam/Documents/Projects/MSCi%20Project/Sources/09-SS047.pdf
+
 \subsection{SIS}
 %Sure independence screening for ultrahigh dimensional feature space
 %High-dimensional variable selection for Cox’s proportional hazards model
