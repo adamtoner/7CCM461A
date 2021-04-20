@@ -1,17 +1,30 @@
 \usepackage{graphicx}
 \usepackage{amsmath, amsfonts, amsthm, bbm}
 \usepackage{pgfplots}
+\usepackage{varioref}
+\usepackage{hyperref}
+\usepackage[nameinlink]{cleveref}
 \usepackage[all]{xy}
 \pgfplotsset{width=\columnwidth,compat=1.13}
-\usepackage{hyperref}
 \usepackage{float}
 \usepackage{titling}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{setspace}
 \usepackage{mathrsfs}
+\usepackage{bbm}
 \usepackage{physics}
 \usepackage[citestyle=numeric,bibstyle=authortitle]{biblatex}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{etoolbox}
+\usepackage{appendix}
+
+
+\crefname{algocf}{alg.}{algs.}
+\Crefname{algocf}{Algorithm}{Algorithms}
+\crefname{figure}{figure}{figures}
+\Crefname{figure}{Figure}{Figures}
+\AtBeginEnvironment{appendices}{\crefalias{section}{appendix}}
 
 \addbibresource{refs.bib}
 
@@ -34,6 +47,7 @@
 \newcommand{\I}{\mathscr{I}}
 \newcommand{\X}{\textbf{X}}
 \newcommand{\x}{\textbf{x}}
+\newcommand{\p}{\mathbbm{p}}
 \newcommand{\bv}{\textbf{v}}
 \newcommand{\z}{\textbf{z}}
 \newcommand{\w}{\textbf{w}}
@@ -57,3 +71,6 @@
 \setlength{\parskip}{1em}
 
 \renewcommand{\.}{\,.}
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}

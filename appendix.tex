@@ -1,4 +1,7 @@
-\section*{Appendix A - Notation}
+\part{Appendices}
+\begin{appendices}
+
+\section{Notation}
 
 \begin{tabular}{|c|c|c|}
     \hline
@@ -13,3 +16,45 @@
     \hline
     Survivor Function & the function showing the survival probability of an individual & $\F(t_i)$\\
 \end{tabular}
+
+\section{Schools of Statistical Thought}\label{app:stats-frameworks}
+
+The two primary ways of approaching the problem of model selection are Bayesian and frequentist. I will not go into much detail here regarding the Bayesian-frequentist divide or the benefits of both, for a more in-depth discussion, see Guyon et al \fcite{bayesian-frequentist}. In a majority of cases, a model developed in one framework has an equivalent model in the alternative framework which will give essentially the same result.
+
+A frequesntist thinks of a probability as a long-run frequency with which an event occurs, i.e. sampling is infinite and the data observed is a sample in the universe of possible results. It is normally frequentist statistics that one is taught in school. Maximum likelihood estimation is a frequentist technique which aims to find the parameters of a model which maximise the likelihood function, i.e. the parameters which are most likely to describe the underlying distribution of the random variable given the data observed. 
+
+A Bayesian thinks of probability more akin to the natural way, considering prior information about the distribution of the parameters in the model. Bayesian statistics at its core is centered around Bayes' theorem, given by
+
+\begin{equation}\label{bayes-theorem}
+    pr(\Beta|data)=\frac{pr(data|\Beta)\cdot pr(\Beta)}{pr(data)},
+\end{equation}
+
+where $pr(\Beta|data)$ is the posterior, $pr(data|\Beta)$ is the likelihood, $pr(\Beta)$ is the prior, and $pr(data)$ is the marginal. 
+
+In the usual process of inference about $\Beta$, $pr(data)$ is excluded from the equation as it contains no information about the parameters. If $pr(data)$ is required, it can be inferred later by integrating over all values of $\Beta$ and equating the integral to $1$. This leaves
+
+\begin{equation}
+    pr(\Beta|data)\propto pr(data|\Beta)\cdot pr(\Beta).
+\end{equation}
+
+In Bayesian statistics, $\Beta$ is not a point estimate, but is its own distribution. I said above that $pr(\Beta|data)$ is the posterior, this is formally known as the posterior probability distribution: the distribution of the unknown parameter(s) $\Beta$ conditioned on the data available. 
+
+A common technique in Bayesian statistics is to find the Maximum A Posteriori Probability (MAP) Estimation which is used to find an estimate of the parameters $\Beta$ as the mode of the posterior probability distribution. This is akin to MLE in a frequentist framework but takes into consideration the prior distribution of $\Beta$. The prior distribution allows for the quantification of information known from previous or similar events. The MLE and MAP can be characterised as follows:
+
+\begin{align}
+    \hat\Beta_{MLE}(data) &= \argmax_{\Beta} f(data|\Beta)\label{mle}\\
+    \hat\Beta_{MAP}(data) &= \argmax_{\Beta} f(\Beta|data) = \argmax_{\Beta} f(data|\Beta)g(\Beta)\label{map}
+\end{align}
+
+\section{Gibbs Sampling}
+%https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353?src=recsys
+
+\section{Bias-Variance Tradeoff}\label{sec:bias-variance}
+
+\section{Convex Functions}
+
+\section{Signal-to-Noise Ratio}
+
+Realistic signal to noise ratio %https://arxiv.org/pdf/1707.08692.pdf
+
+\end{appendices}

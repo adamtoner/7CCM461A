@@ -12,7 +12,7 @@ The Cox model is very attractive to statisticians because it is semi-parametric.
 
 This separation allows statisticians to build models based on the covariates without explicit or iterative calculation of the baseline hazard.
 
-In this part of the thesis, I will describe the model in detail as proposed by Cox and explore surrounding methods and extensions. In section \ref{background}, I will give a history of the statistics used by Cox in the development of the model and the assumptions it is based upon. Section \ref{partial-likelihood} will consider the partial likelihood function as discussed in Cox \fcite{cox75}, why it can be consider it a full likelihood and why this is of benefit. Some methods of approximating and extending the original partial likelihood introduced by Cox \fcite{cox72} (which dealt solely with continuous time events) will be introduced briefly. Section \ref{baseline} will deal with the motives and methods for estimation of the baseline hazard.
+In this part of the thesis, I will describe the model in detail as proposed by Cox and explore surrounding methods and extensions. In section \ref{background}, I will give a history of the statistics used by Cox in the development of the model and the assumptions it is based upon. \Cref{sec:partial-likelihood} will consider the partial likelihood function as discussed in Cox \fcite{cox75}, why it can be consider it a full likelihood and why this is of benefit. Some methods of approximating and extending the original partial likelihood introduced by Cox \fcite{cox72} (which dealt solely with continuous time events) will be introduced briefly. Section \ref{baseline} will deal with the motives and methods for estimation of the baseline hazard.
 
 \section{Background}\label{background}
 
@@ -38,7 +38,7 @@ Obviously, it is beneficial to include as much information can be from the data 
 
 Think of this as follows: if there is a set of $\{1,2,3,4\}$ of individuals and is is observed that 1 fails first, then 2 is censored, 3 then fails and finally 4 fails, the probability that at the time of first failure 1 fails as observed is given by $$pr(1\textrm{ fails}|\textrm{there is one failure from }\{1,2,3,4\})=\frac{pr(1)}{pr(1)+pr(2)+pr(3)+pr(4)}.$$ Individual 2 is then censored and the probability that 3 fails next is given by $$pr(3\textrm{ fails}|\textrm{there is one failure from }\{3,4\})=\frac{pr(3)}{pr(3)+pr(4)}.$$
 
-In the commonly used methods, increased censoring will lead to an increase in bias in the model, i.e. in our example above, if subjects 2 and 4 were censored in the interval between failure of 1 and 3, the probability of 3 failing would be increased thus giving it more weight in the likelihood estimations introduced below in section \ref{partial-likelihood}.
+In the commonly used methods, increased censoring will lead to an increase in bias in the model, i.e. in our example above, if subjects 2 and 4 were censored in the interval between failure of 1 and 3, the probability of 3 failing would be increased thus giving it more weight in the likelihood estimations introduced below in section \cref{sec:partial-likelihood}.
 
 Robins et al \fcite{robins-rotnitzky-92, robins-93, robins-finkelstein-00} discuss methods to deal censoring to produce consistent and asymptotically normal parameter estimation in the presence of censoring. The approach taken is to assume that given survival to a certain time $t_{(i)}$ and the covariate values $\z_{(i)}$, the censoring the in following interval is independent of survival time. This is referred to as  missing at random (MAR). However these methods are not commonly used and in the usual process as it is not always certain that the data is MAR.
 
@@ -98,7 +98,7 @@ I will not discuss in more detail here how these residuals work; for details on 
 
 It is worth mentioning the disadvantages of carrying out tests regarding proportional hazards. Of course it can be useful to check our assumptions hold, but we must now also consider the error implicit in the preliminary test carried out. It is possible that we get a false result for our appropriate model test. If we get a false positive, we could be using the Cox PH model when the hazards are indeed not proportional, or a false negative could lead to rejection of the Cox PH model when it accurately describes the data distribution.
 
-\section{Partial Likelihood}\label{partial-likelihood}
+\section{Partial Likelihood}\label{sec:partial-likelihood}
 
 A likelihood function is used to measure the goodness of fit of a statistical model based on a given set of data when the parameters of the model are unknown. It is a function of the parameters only and thus treats the random variables in the dataset as though they were fixed.
 
@@ -412,32 +412,395 @@ Andersen and Gill \fcite{andersen-gill-82} "discuss how this model can be extend
 \newpage
 \part{Variable Selection}
 
-When considering the problem of variable selection, it is important to look at both accuracy of prediction and model interpretability: finding the best model will come down to balancing goodness of fit vs parsimony. The selected model should accurately predict future results based on the data already available, but it is also desirable that the model not be overly complex and thus does not make sense with real world data. This is particularly important with a view to the original purpose of the proportional hazards model, that being to estimate the effect of covariates irrespective of the arbitrary underlying distribution. One last feature that is definitely worth mentioning is computational costing. Even with the advances of modern computing which reduces the impact of the efficiency of the computation, with very large datasets (such as are available in cancer epidemiological studies) small optimisations can sway our propensity to choose one method over another.
+It is often the case that not every measured covariate is in the true model. At first glance, one would be forgiven for thinking that the best model would be found fitting a model containing all covariates to the data. Logically this is using all of the information available to produce the best model possible. The problem with this approach is a phenomenon called 'overfitting'.
 
-There are very many (extremely good) methods for model selection when considering the simpler problem of linear regression in continuous time. However, not all of these work well for survival analysis with tied event times and censoring.
+Overfitting occurs when the model is fitted too precisely to the data. It ends up fitting the noise, i.e. the errors implicit in the recording of data. This tends to occur more often in models with large covariate coefficients and a large number of covariates. Two methods of dealing with this are shrinkage (reducing the coefficients towards zero) and variable selection (dimension-reduction).
 
-Most of the methods used today are generalizations of methods which were used for model selection for linear regression; an application to survival (time-to-event) data with tied times and censoring is not always obvious.
+There are many ways to approach the problem of variable (or model or feature) selection, and there is now a huge amount of literature specifically on variable selection for survival analysis. Methods have been proposed in frequentist and Bayesian frameworks: oftentimes a frequentist model will have an (at least superficially) equivalent Bayesian model. The frequntist-Bayesian divide is given more consideration in \Cref{app:stats-frameworks} and I will mention this equivalence throughout this part of the thesis.
 
-There are multiple schools of thought when considering a statistical approach to the problem. I will discuss the development of techniques from both a Bayesian and a frequentist standpoint, as well as how they are related, how they have been combined and some of the key features of each.
+The two main motivating factors in variable selection are accuracy of prediction and model interpretability, i.e. finding the best model will come down to balancing goodness of fit versus parsimony:
 
-The problem of model selection can very often be decomposed into a problem of parameter selection (those within the model) and hyper-parameter estimation. I would refer the reader to \cite{bayesian-frequentist} for a more in-depth conversation about this distinction as well as discussion about the Bayesian / frequentist divide.
+The selected model should accurately predict future results based on the data already available, but a real-world model is rarely interpretable if there are a large number of covariates involved. This is particularly important with a view to the original purpose of the proportional hazards model: to estimate the effect of covariates on survival time irrespective of the arbitrary underlying distribution. 
 
-\section{Schools of Statistical Thought}
+One last feature worth mentioning is cost of computation. Even with the advances of modern computing which reduces the impact of the efficiency of the computation, when working with very large datasets (such as are available in cancer epidemiological studies) small optimisations can sway our propensity to choose one method over another.
 
-The two primary ways of approaching the problem of model selection are Bayesian and frequentist. 
+The methods for variable selection I will talk about below give an estimator for the vector of covariate coefficients, $\hat\Beta$. An attractive property of some of the estimators is called the 'oracle property'. Fan and Li \fcite{fan2001variable} discuss the oracle property generally and with specific regard to nonconcave penalised likelihood methods. The property is such that the estimator knows the true model, and will approach the true model assymptotically, i.e. as $n\xrightarrow \infty$.
 
-\section{The Likelihood Function}
+\section{Subsetting Methods}
 
+Consider the vector of covariate coefficients, $\Beta=(\beta_1, \ldots, \beta_p)$. Subsetting methods, as the name suggests, involves taking subsets of the set of all covariate coefficients. In general, a subset is taken and fit to the data using to give the best model possible
 
+%https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-015-0066-2
+%http://finzi.psych.upenn.edu/R/library/My.stepwise/html/My.stepwise.coxph.html
+
+\subsection{All Subset Selection}
+
+All Subset Selection does just that, a model is fitted for every possible combination of covariates. Obviously this will find the best candidate model at the expense of an exponentially increasing computational cost. For example, in a model with 10 covariates, 1,024 candidate models will be selected constructed and fitted, but if the number of covariates increases to 16, 1,048,576 models must be calculated. There is a binary option of exclusion or inclusion for each covariate and so there are $2^p$ possible models. This number is inflated further when considering the possibility of adding covariate interaction terms as well.
+
+This method will give the best model but is only usable when the number of covariates is low. For a high number of covariates, let alone the ultrahigh dimensionality that comes with cancer epidemiological studies or genome studies, this method becomes prohibitively expensive.
+
+\subsection{Forward Selection}
+
+Forward selection begins with an empty model and iteratively adds the "best" covariates one at a time. If $p$ is the number of possible covariates to include in the model and $k$ is the number already included, then only $2^{p-k}$ models need to be created and fitted at each stage. This is a huge reduction in computational cost over all subset selection, but it comes with a caveat: it is very possible that the best model will never be found. Consider the case where a covariate which wouldn't be in the final model is (for some reason) added early on. Every model considered thereafter would be fitted with this erroneous covariate included, which could lead to a very different final model.
+
+I mentioned that the "best" covariate is added at each stage, quite a vague statement. This is because the "best" covariate is entirely dependent on the model comparison scheme being used. I have explained some of the model comparison methods below in \cref{sec:model-comparison}. Common methods include AIC and BIC which are calculated for each model fitted and stored for comparison later on. The model with the lowest AIC (or BIC) is selected as the best model.
+
+The forward selection method is attributed to 
+
+James et al \fcite{james2013introduction} gives a concise explanation of forward selection. I include here the algorithm as listed by them:
+
+\begin{algorithm}[H]
+    Let $M_0$ denote the null model, containing no predictors\;
+    \For{$k=0,\ldots,p-1$}{
+    Consider all $p-k$ models that augment the predictors in $M_k$ with one additional predictor\;
+    Choose the "best" among these $p-k$ models, and call it $M_{k+1}$.
+    }
+    Select a single best model from among $M_0,\ldots,M_p$ using the chosen model comparison technique\;
+    \caption{Forward stepwise selection (from James et al \fcite{james2013introduction})}\label{alg:forward-stepwise-selection}
+\end{algorithm}
+
+\subsection{Backward Elimination}
+
+Backward elimination begins with the whole model and iteratively removes the covariate which provides the least information / causes the least information loss. This is very similar in practice to forward selection, and again is explained well by James et al \fcite{james2013introduction}:
+
+\begin{algorithm}[H]
+    Let $M_p$ denote the full model, containing all $p$ predictors\;
+    \For{$k=p,p-1,\ldots,1$}{
+    Consider all $k$ models that contain all but one of the predictors in $M_K$ for a total of $k-1$ predictors\;
+    Choose the "best" among these $k$ models, and call it $M_{k-1}$.
+    }
+    Select a single best model from among $M_0,\ldots,M_p$ using the chosen model comparison technique\;
+    \caption{Backward Elimination (from James et al \fcite{james2013introduction})}\label{alg:backward-elimination}
+\end{algorithm}
+
+\subsection{Combining Stepwise Variable Selection}
+
+The above methods can be combined in a stepwise iterative process that searches to both add and remove covariates in the same iteration. The simplification of the method proposed by Fu-Chang \fcite{fu-chang-17} is as follows:
+
+\begin{algorithm}[H]
+    Let $M$ be the initial model\;
+    \Repeat{No covariates are added or removed in a single iteration}{
+    Get the list of all covariates not included in the current model\;
+    \For{covariate in the list of not included covariates}{
+    Add the covariate to the model independently\; 
+    }
+    Check which gives the best resulting model according to analysis of variance the wald test\;
+    \If{p-value is lower than siginificance level for entry}{
+    Add the covariate to the model if it passes the set significance level for entry\;
+    }
+    Get the list of all covariates now in the model\;
+    Find the covairate which reduces the anova p-value the most\;
+    \If{p-value is lower than siginificance level for exit}{
+    Remove the covariate from the model\;
+    }
+    }
+    \caption{My.Stepwise.coxph}\label{alg:my.stepwise.coxph}
+\end{algorithm}
+
+\subsection{Model Comparison}\label{sec:model-comparison}
+
+\Cref{alg:my.stepwise.coxph} uses Anova (analysis of variance) to compare models when selecting the best covariates to include and remove, then uses the wald test in the case of ties. Some alternatives selecting and comparison models are listed below.
+
+\subsubsection{Akaike Information Criterion}
+
+Akaike \fcite{akaike-74} introduced the Akaike Information Criterion (AIC) given by
+
+\begin{equation}
+    AIC = -2\log(L(\Beta;\x))+2p.
+\end{equation}
+
+The AIC is a penalised log-likelihood criterion which is an estimator of the Kullback-Leibler divergence of the model. This is an estimate of the predictive error in the mode. Looking at the formula, twice the negative log-likelihood function is penalised by twice the number of included covariates. This means the for a covariate to be included, it must compensate the increase in penalty with enough information to increase the likelihood. The best model is the one which minimises the AIC.
+
+\subsubsection{Bayesian Information Criterion}
+
+The BIC (or Schwarz Information Criterion) as introduced by Schwarz \fcite{schwarz-78} is very similar to AIC but has a different penalty function:
+
+\begin{equation}
+    BIC = -2\log(L(\Beta;\x))+\log(n)p
+\end{equation}
+
+Clearly the BIC penalises the likelihood function more in models with a large number of subject observations. Considering $e^2\approx7.39$, BIC penalises the likelihood more harshly if the number of subjects in the trial is greater than 7 (as $n\in\mathbb{N}$).
+
+There is a difference in the philosophy behind AIC and BIC. Although the two are normally used to the same end and often used together, they fundamentally try to answer different questions. AIC is a frequentist approach which finds the best model in the set of candidates to maximise the penalised likelihood. BIC on the other hand assumes that the the "true" model is in the candidate set and aims to find it. I say "true" as with real world data, the real model which describes a given distribution will have a huge dimension which is impossible to describe. BIC tends to perform well in simulation studies when the true model does in fact exist within the candidate set, but falls down in real world analysis.
+
+For more detailed comparison of the two, see Yang \fcite{yang2005can} and Vrieze \fcite{vrieze2012model}.
+
+\subsubsection{Cross-Validation}
+
+In $k$-fold CV, the data is randomly split into $k$ partitions of roughly equal size. $k-1$ of these sets are then used to train the data with the other partition used for testing the fitted model's predictive accuracy. Each partition is omitted from the training set once and the testing error is calculated for each repetition. The sum or mean of the errors is then calculated for the given hyper-parameters. In \cref{fig:k-fold-cv} the "Stored metrics" are the test errors. It is possible to include the training error as well but this is not as common. The test error can be calculated in a variety of ways: commonly, MSE or a similar loss function is used.
+
+\begin{figure}[h!]
+  \includegraphics[width=\textwidth]{k-fold-cv}
+  \caption{5-fold cross-validation (from Kubben et al \fcite{kubben2019fundamentals}}
+  \label{fig:k-fold-cv}
+\end{figure}
+
+K-fold cross validation has been extended to repeat the entire experiment. A common variation is 10 times 10-fold cross-validation in which we split the data into 10 partitions, used each combination of 9 folds to train the data with the remaining partition to calculate the test error. This random splitting into 10 partitions is repeated 10 times and the 10-fold cross-validation carried out for each repetition. The 100 calculated test errors are then averaged (or summed) to give the mean (or total) error for the given hyperparameters.
+
+A special case of k-fold CV is leave-one-out cross-validation (LOOCV) in which $k=n$, where $n$ is the number of observations. LOOCV generally results in low variance in the calculated test errors as there is less variation between the training sets than if the more data is left for the test set.
+
+Generalized cross validation (GCV) was introduced by Craven and Wahba \fcite{craven1978smoothing}. It is a modification of LOOCV which I will not explain fully here, but know that it is commonly used in simulation studies, e.g. Fan and Li \fcite{fan2002variable}, and Hunter and Li \fcite{hunter2005variable}.
+
+\subsubsection{Minimum Description Length}\label{sec:mdl}
+
+Minimum description length (MDL) is a model selection principle at its core. Sometimes referred to as a formalization of Occam's Razor, it can be defined as follows:
+
+\begin{definition}[Minimum Description Length]\label{def:mdl}
+The model which can best describe the data with the least information stored about the model itself should be selected.
+\end{definition}
+
+The MDL is not an algorithm or a method in itself, but a principle which is applicable and followed in many settings. For a thorough look at MDL, I refer the reader to Grunwald \fcite{grunwald2007minimum}. Think about what the description length is: information must be stored to describe the model and the data. The more information we store about the model, the lower the cost of describing the data and vice versa. This can be likened to the bias-variance tradeoff.
 
 \section{Penalized Likelihood Methods}
-\section{Subset Selection}
-\section{Model Comparison} 
+
+In theory, one could find a suitable estimate to the parameter vector $\Beta$ by finding the MLE as given by \cref{mle}. This rarely gives the best model as the estimate tends to describe the observed data very well but is lacking in predictive power when applied to new results due to overfitting.
+
+A common technique used to make the model more interpretable is called regularisation. Formally, regularisation is defined as the process of adding information to an ill-posed optimisation problem to prevent overfitting. In the context of this thesis, regularisation is synonymous with penalization of a loss function.
+
+\begin{definition}[Loss Function]
+A function which gives a curve of loss in optimisation problems.
+\end{definition}
+
+Some commonly used loss functions are 
+
+\begin{itemize}
+    \item Mean Squared Error,
+    \item Mean Squared Logarithmic Error,
+    \item Mean Absolute Error,
+    \item Hinge Loss, and
+    \item Kullback-Leibler Divergence Loss.
+\end{itemize}
+
+This is by no means an exhaustive list and in fact the methods discussed below do not use any of these loss functions.
+
+The standard approach taken when dealing with censored survival analysis is to regularise the negative log-likelihood function by adding a penalty function. The form of this penalty varies by method and I will discuss some of the popular penalties below. A desirable feature of the penalty function is convexity; if the penalty function is convex, the minimisation of the penalised loss function become a convex optimisation problem for which there are many very efficient solutions.
+
+Note that it need not be the exact log-likelihood used in the loss function, more often than not either the Breslow or Efron approximation to the likelihood function is used.
+
+It can be seen that using various penalties in the loss function, ie. adding them to the MLE, is basically equivalent to assuming some prior distribution in the MAP. This prior distribution or penalty can be selected based on prior knowledge or desired features of the model, e.g. sparsity.
+
+Fan and Li \fcite{fan2001variable} proposed a general form of a penalized likelihood function. Similar to this form but adapted slightly to the notation used here, a general form of the penalised likelihood function is
+
+\begin{equation}\label{eqn:general-penalised-likelihood}
+    l(\Beta;\x)-\lambda\sum_{j=1}^pg_(|\beta_j|),
+\end{equation}
+
+where $g(\cdot)$ is a penalty function and $\lambda$ is the tuning parameter.
+
+Different penalty functions obviously penalise the likelihood in different ways, resulting in different methods that can be used and different features of the estimator which will result.
+
+\subsection{Hyperparameter Estimation}
+
+The problem of model selection can very often be decomposed into a problem of parameter selection (those within the model) and hyper-parameter estimation (those outside of the model). The hyperparameters are those which are not involved in the likelihood itself, but are instead tuning parameters in the method to find the best estimate. The hyperparameters can be found using the same methods discussed in \cref{sec:model-comparison} and from most studies, it seems that cross validation is the most popular method by which to find the optimal tuning parameters. 
+
+Roy and Chakraborty \fcite{roy2017selection} suggested Empirical Bayes as a method for selecting hyperparamters. The advantage of using Bayesian methods for selecting hypermarameters is they are informed methods, i.e. they remember previous evaluations and use this in the calculation of future estimates. This can save a lot of computational resources at the risk of adding bias if not handled with care. See \cref{sec:bias-variance} for more information.
+
+Some other methods such as grid search and random search can also be used, but again these are a frequentist approach and are uninformed. There are many other methods which I will not discuss here, but this gives an idea of some of the most popular methods and their utility.
+
+Friedman et al \fcite{friedman2010regularization} and Hastie et al \fcite{hastie2009elements} both explain a fairly standard practice called the one-standard-error or one-standard-deviation rule, although the rule dates back at least to the derivation by Breiman et al \fcite{breiman1984classification}. Put simply, once the value of the tuning parameter is found that minimises the penalised likelihood function, $\lambda_{\min}$, it is generally seen to overfit the model. To counteract this, the most parsimonious model with an error within one-standard-error from $\lambda_{\min}$ is chosen. Oftentimes, this is simply the model given by $\lambda_{\min}+1\textrm{s.d.}$ as this gives the highest value of $\lambda$ within one-standard-deviation, thus penalising the model more harshly for including parameters and hopefully giving a more interpretable and accurate model. This value of the hyperparameter is referred to as $\lambda_{1se}$.
+
+\subsection{Norms}
+
+\begin{definition}[Norm]\label{def:norm}
+A norm in mathematics is a distance function which:
+\begin{spacing}{0}
+\begin{enumerate}
+    \item commutes with scaling;
+    \item obeys the triangle inequality; and
+    \item is zero only at the origin.
+\end{enumerate}
+\end{spacing}
+\end{definition}
+
+The most common and well-known norms belong to the Minkowski family of distances given by
+
+\begin{equation}
+    \Vert\Beta\Vert_\p = \bigg(\sum_{j=1}^p|\beta_j|^\p\bigg)^{\frac{1}{\p}}.
+\end{equation}
+
+The following are some special cases of the Minkowski distance:
+
+\begin{definition}[$L_1$-norm | Manhattan Distance]\label{def:manhattan-distance}
+\begin{equation}\label{eqn:manhattan-distance}
+    \Vert\Beta\Vert_1 = \sum_{j=1}^p|\beta_j|,
+\end{equation}
+\end{definition}
+
+\begin{definition}[$L_2$-norm | Euclidean Distance]\label{def:euclidean-distance}
+\begin{equation}\label{eqn:euclidean-distance}
+    \Vert\Beta\Vert_2 = \bigg(\sum_{j=1}^p|\beta_j|^2\bigg)^{\frac{1}{2}}.
+\end{equation}
+\end{definition}
+
+There is some confusion in literature attributed to an abuse of notation when speaking about the $L_0$-norm. Typically, especially in the context of variable selection and penalized likelihood, when the $L_0$-"norm" is mentioned, the author is referring to
+
+\begin{equation}
+    \Vert\Beta\Vert_0 =\sum_{j=1}^p|\beta_j|^0,\;\;\textrm{where}\;\;0^0=0.
+\end{equation}
+
+Therefore the $L_0$-"norm" (which I will henceforth be referring to as the $L_0$-norm is) counts the number of non-zero distances. It is not a norm at all because by \cref{def:norm} it is clear that it does not commute with scaling, i.e. it doesn't matter how large the distance in a given direction is as long as it is not zero.
+
+These norms have been suggested as penalty functions in the standard form of the penalised likelihood function given by \cref{eqn:general-penalised-likelihood}. These penalties correspond to the penalised likelihood methods below.
+
+\subsubsection{Best Subset Regression}
+
+Best subset selection is an old statistical technique dating back at least to the introduction by Beale et al. \fcite{beale1967discarding}, and Hocking and Leslie \fcite{hocking1967selection}. Best subset regression quite literally aims to find the best subset of $q$ variables to include in the final model.
+
+According to Wen et al \fcite{wen2017bess}, in constrained form, the problem can be written as
+
+\begin{equation}
+    \hat\Beta^{BESS}=\argmin_{\Beta} -l(\Beta;\x)\;\;\textrm{subject to}\;\;\Vert\Beta\Vert_0=q,
+\end{equation}
+
+where $l(\Beta;\x)$ is the appropriate log-likelihood or approximation mentioned in \cref{sec:partial-likelihood}. In penalised form\footnote{Tibshirani \fcite{tibshirani2016closer} stated that these problems are not equivalent.}, the problem is given by
+
+\begin{equation}
+    \hat\Beta^{BESS} = \argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\Vert\beta_j\Vert_0\Big).
+\end{equation}
+
+An interesting development by Bertsimas et al \fcite{bertsimas2016best} was that best subset regression has a Mixed Integer Optimisation (MIO) formulation. This means the number of covariates that can be used with best subset regression has been hugely increased due to the extreme efficiency of MIO algorithms. I will not go into more detail about MIO here, but I direct the reader to Hastie et al \fcite{hastie2017extended} for a discussion about the effects this has and how it has changed the usage of the method.
+
+\subsubsection{LASSO Regression}\label{sec:LASSO}
+
+The Least Absolute Shrinkage and Selection Operator was first proposed by Tibshirani \fcite{tibshirani1996regression} for generalized linear models based on the work of Breiman \fcite{breiman1993better} with the nonnegative garotte. It was then adapted for use with the Cox PH model by Tibshirani \fcite{tibshirani1997lasso}. The two forms of the problem are given by
+
+\begin{align}
+    \hat\Beta^{lasso} =\argmin_{\Beta} -l(\Beta;\x)\;\;\textrm{subject to}\;\;\Vert\Beta\Vert_1\leq t,\\
+    \hat\Beta^{lasso} = \argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\Vert\beta_j\Vert_1\Big).
+\end{align}
+
+The LASSO, as the name implies, simultaneously applies shrinkage to it's included covariates, whilst promoting sparse solutions by efficiently shrinking coefficients all the way to zero. Considering its penalty term $\Vert\Beta\Vert_1$, this norm is uniquely convex while producing sparse solutions. This is because sparsity requires $p\leq1$ for $\Vert\Beta\Vert_p$ and convexity requires $p\geq1$ for $\Vert\Beta\Vert_p$. Therefore best subset regression is sparse but not convex, and ridge regression (below) is convex but not sparse.
+
+\subsubsection{Ridge Regression}
+
+-background
+-equations
+-explanation of shrinkage but not selection
+-comparison of ridge and lasso
+-show and explain p graphs
+-advantages and disadvantages
+
+\subsection{Bayesian Priors}
+\subsubsection{Non-local priors}
+Fan li 2002 [5]
+\subsubsection{Shrinkage Priors}
+%The Bayesian Lasso
+\subsubsection{Selection Priors}
+\subsubsection{Grouping Priors}
+\subsubsection{Jeffrey's Priors}
+\subsubsection{g-priors}
+\subsubsection{Mixture Priors}
+\subsection{More Frequentist Penalties}
+\subsubsection{Elastic Net}
+\subsubsection{Relaxed LASSO}
+
+The relaxed LASSO was first proposed by Meinshausen \fcite{meinshausen2007relaxed} and then simplified by Hastie et al \fcite{hastie2017extended}.
+
+\subsubsection{Adaptive LASSO}
+adaptive lasso and it's oracle properties
+\subsubsection{Adaptive Elastic Net}
+%Zou & Zhang 2009
+\subsubsection{Spike-and-Slab LASSO}
+\subsubsection{Group LASSO}
+%Meier et al 2008
+
+\subsubsection{Sparse-Group LASSO}
+\subsubsection{HARD}
+\subsubsection{SCAD}
+\subsubsection{Local Quadratic Approximation}
+%Fan & Li 2001
+\subsubsection{Minorization-Maximisation}
+%Hunter & Li 2005 VARIABLE SELECTION USING MM ALGORITHMS
+\subsubsection{Firth's Penalised Likelihood}
+%http://finzi.psych.upenn.edu/library/coxphf/html/coxphf.html
+
+\section{Resampling}
+%https://benthamopen.com/FULLTEXT/TOPHJ-12-136
+\subsection{Jackknife}
+\subsection{Bootstrapping}
+
+\section{Ensemble Learning Methods}
+%https://en.wikipedia.org/wiki/Ensemble_learning
+%https://reader.elsevier.com/reader/sd/pii/S001048252100038X?token=33FFE1A8567973E72DE5114384E6E21F7B8428BD76771F533C17B3F8801616E60E22FE55694095D76A103BEC24190626&originRegion=eu-west-1&originCreation=20210419113204
+%https://machinelearningmastery.com/bagging-and-random-forest-ensemble-algorithms-for-machine-learning/#:~:text=Bootstrap%20Aggregation%20(or%20Bagging%20for,predictions%20than%20any%20individual%20model.
+%https://www.tandfonline.com/doi/full/10.1080/21642583.2019.1620658
+SVR
+VSEs
+Weak Learner
+Strong Learner
+\subsection{Boosting}
+%https://www.hindawi.com/journals/cmmm/2013/873595/
+%https://towardsdatascience.com/boosting-algorithms-explained-d38f56ef3f30
+\subsection{Model-Based Boosting}
+\subsection{Likelihood-Based Boosting}
+\subsection{Bagging}
+\subsection{Stacking}
+\subsection{Bayes Optimal Classifier}
+\subsection{Bayesian Model Averaging}
+%Bayesian Structure Time Series
+\subsection{Bayesian Model Combination}
+\subsection{Bucket of Models}
+\subsection{Stability Selection}
+%https://www.hindawi.com/journals/cin/2017/2747431/
+
+\section{More Selection Methods}
+\subsection{Forward Stepwise Regression}
+
+Forward Stepwise and Forward Stagewise regression are old techniques typically attributed to Efryomson \fcite{efroymson1966stepwise}, and Draper and Smith \fcite{draper1966applied}. Efron et al \fcite{efron2004least} then brought the methods back to the forefront upon deriving a connection between forward stagewise estimates and the solution path to the LASSO\ucite{tibshirani2015general} which I spoke about in \cref{sec:LASSO}. The algorithm is given concisely by Tibshirani \fcite{tibshirani2015general}:
+
+\begin{algorithm}[H]
+    Fix $\epsilon>0$\;
+    Initialise $\Beta^{(0)}=0$\;
+    \For{$k=1,2,\ldots$}{
+    $\Beta^{(k)}=\Beta^{(k-1)}+\epsilon\cdot\textrm{sign}(\z_i^T(t-\z\Beta^{(k-1)}))\cdot e_i$, where $i\in\argmax_{j=1,\ldots,p}|\z_i^T(t-\z\Beta^{(k-1)})|.$
+    }
+    \caption{Forward stagewise regression (from Tibshirani \fcite{tibshirani2015general})}\label{alg:forward-stagewise-regression}
+\end{algorithm}
+
+Following the results of Bertsimas et al \fcite{bertsimas2016best}, Hastie et al \fcite{hastie2017extended} conducted a thorough comparison of the forward stepwise regression, best subset selection and the LASSO. They summarised their findings as follows:
+
+\begin{itemize}
+    \item best subset selection generally outperforms lasso when SNR is high, conversely the opposite is true when SNR is low; 
+    \item best subset selection and forward stepwise perform quite similarly throughout;
+    \item relaxed LASSO performed similarly to the optimal methods at high and low SNR and was dubbed the overall winner.
+\end{itemize}
+
+\subsection{Heirarchical Bayesian Method} 
+%https://pubmed.ncbi.nlm.nih.gov/9147593/
+\subsection{LARS}
+%https://en.wikipedia.org/wiki/Least-angle_regression
+%http://finzi.psych.upenn.edu/library/covTest/html/lars.glm.html
+\subsection{SCART}
+%Decision tree for modeling survival data withcompeting risks
+%file:///Users/adam/Documents/Projects/MSCi%20Project/Sources/09-SS047.pdf
+\subsection{SIS}
+%Sure independence screening for ultrahigh dimensional feature space
+%High-dimensional variable selection for Cox’s proportional hazards model
+blessing of dimensionality 
+\subsubsection{ISIS}
+%Ultrahigh dimensional variable selection: beyond the linear model
+
+\section{Hypothesis Testing}
 \subsection{Likelihood-Ratio Test}
 \subsection{Wald Test}
 \subsection{Lagrange Multiplier (Score) Test}
-\part{Beyond the Model}
-\section{Extensions}
-\section{Alternative Models}
-\part{Example}
-\section{Application of Model Selection}
+
+\section{Extended Variable Selection Problems}
+\subsection{Required Covariates}
+\subsection{Missing Covariates}
+\subsection{Ultrahigh Dimensionality}
+\subsection{Associated / Collinear Covariates}
+\subsection{Case-Cohort Studies}
+%Variable selection for case-cohort studies with failure time outcome - Ni et al 2016
+
+\part{Simulation Study}
+- Convergence
+- Model Stability
+
+
+- BeSS
+- My.stepwise.coxph
+- glmnet
+- 
+
+\part{Real-World Example}
