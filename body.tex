@@ -772,7 +772,7 @@ The name HARD refers to the procedure related to the hard thresholding penalty. 
 The penalty function is given by
 
 \begin{equation}
-    n\cdot P_{\lambda}(\Beta)=n\sum_{j=1}^q\Big(\lambda^2 - (|\beta_j|-\lambda)^2I(|\beta_j|<\lambda)\Big).
+    P_{\lambda}(\Beta)=\sum_{j=1}^p\Big(\lambda^2 - (|\beta_j|-\lambda)^2I(|\beta_j|<\lambda)\Big).
 \end{equation}
 
 I will not go into further detail here about HARD as is is not regularly implemented due to its lack of continuity and the resulting instability.
@@ -781,11 +781,24 @@ I will not go into further detail here about HARD as is is not regularly impleme
 
 The smoothly clipped absolute deviation (SCAD) penalty was introduced by Fan \fcite{fan1997comments} and shown in Fan and Li \fcite{fan2001variable, fan2002variable} to satisfy all the conditions as laid out by Antoniadis and Fan \fcite{antoniadis2001regularization} and possess the oracle property.
 
-The penalty function is given by
+The derivative of the penalty is given by
 
 \begin{equation}
-    n\cdot P_\lambda'(\Beta) = n\sum_{j=1}^q\Big(I(|\beta_j|\leq\lambda)+\frac{(a\lambda-|\beta_j|)_{+}}{(a-1)\lambda}I(|\beta_j|>\lambda)\Big).
+    P_\lambda'(\Beta) = \sum_{j=1}^p\Big(I(|\beta_j|\leq\lambda)+\frac{(a\lambda-|\beta_j|)_{+}}{(a-1)\lambda}I(|\beta_j|>\lambda)\Big)\;\;\textrm{where}\;\;a>2.
 \end{equation}
+
+The penalty function can be written explicitly as a quadratic spline function as follows
+
+\begin{equation}
+    P_\lambda(\Beta)=\sum_{j=1}^p
+    \begin{cases}
+        \lambda|\beta_j| &\textrm{if }|\beta_j|\leq\lambda\\
+        \frac{2a\lambda|\beta_j|-\beta_j^2-\lambda^2}{2(a-1)} &\textrm{if }\lambda<|\beta_j|\leq a\lambda\\
+        \frac{\lambda^2(a+1)}{2} &\textrm{otherwise}.
+    \end{cases}
+\end{equation}
+
+%https://statisticaloddsandends.wordpress.com/2018/07/31/the-scad-penalty/
 
 Brehany and Lee \fcite{brehany2015ncvreg} updated the \textbf{ncvreg} package to include his new \emph{nvcsurv} functions for fitting nonconvex penalised likelihood functions in the Cox PH model using coordinate descent discussed by Brehany and Huang \fcite{breheny2011coordinate}.
 
@@ -798,6 +811,28 @@ Brehany and Lee \fcite{brehany2015ncvreg} updated the \textbf{ncvreg} package to
 The penalty functions are drawn in \cref{fig:penalty-functions} for some $L_\p$-norm penalties, the HARD penalty, and the SCAD penalty. From this, it can be seen that the HARD is indeed harsher than SCAD and so it makes sense that it is not continuous. There is also a similarity in shape around 0 between SCAD and the LASSO. It is then obvious why SCAD was suggested as an alternative to LASSO which does not penalise high coefficients as harshly and thus should lower the bias in the model. This observation reinforces that SCAD has the oracle property and LASSO does not.
 
 \subsubsection{Minimax Concave Penalty}
+
+The minimax concave penalty (MCP) was introduced by Zhang \fcite{zhang2010minimax} penalty as another alternative to the LASSO with less penalisation of high coefficients while still promoting sparse solutions. The derivative of the penalty function is given by
+
+\begin{equation}
+    P_\lambda'(\Beta) = \sum_{j=1}^p
+    \begin{cases}
+        \textrm{sgn}(\beta_j)\big(\lambda-\frac{|\beta_j|}{a}\big) &\textrm{if }|\beta_j|\leq a\lambda\\
+        0 &\textrm{otherwise},
+    \end{cases}
+\end{equation}
+
+and the explicit penalty function is then given by
+
+\begin{equation}
+    P_\lambda(\Beta) = \sum_{j=1}^p
+    \begin{cases}
+        \lambda|\beta_j| - \frac{\beta_j^2}{2a} &\textrm{if }|\beta_j|\leq a\lambda\\
+        \frac{a\lambda^2}{2} &\textrm{otherwise}.
+    \end{cases}
+\end{equation}
+
+The MCP is also included in the \textbf{ncvreg} package by Brehany and Lee \fcite{brehany2015ncvreg}. In the simulation study to follow, these are two of the methods I will be testing to check if there is a significant difference between the two models in terms of finding the correct covariates. Both possess the oracle property and so should select the same covariates and shrink the rest to zero.
 
 \subsection{More Penalty Functions}
 
@@ -839,9 +874,43 @@ with hyper-parameters $\lambda\geq0$ and $\gamma\in[0,1]$.
 I will not go into more detail here on the workings and properties of the relaxed LASSO, but know it has been found by Hastie et al \fcite{hastie2017extended} that the relaxed LASSO performs as well as LASSO in its preferred low SNR scenarios and performs as well as best subset selection in its preferred high SNR scenarios.
 
 \subsubsection{Adaptive LASSO}
-adaptive lasso and it's oracle properties
+
+It has been proven the the LASSO itself does not possess the oracle property. The adaptive LASSO was proposed by Zou \fcite{zou2006adaptive} in an attempt to quash the bias in the LASSO in the context of linear regression and GLMs. The method was then extended to work with the Cox PH model by Zhang and Lu \fcite{zhang2007adaptive}.
+
+The penalty function of the adaptive LASSO is given by
+
+\begin{equation}
+    \lambda P_{\Tau}(\Beta) = \lambda\sum_{j=1}^p|\beta_j|\tau_j.
+\end{equation}
+
+The estimator as defined by Zhang and Lu \fcite{zhang2007adaptive} is then given generally by
+
+\begin{equation}\label{eqn:adaptive-lasso}
+    \hat\Beta^{alasso}(\lambda,\Tau)=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p|\beta_j|\tau_j.
+\end{equation}
+
+The positive weights $\Tau=(\tau_1,\ldots,\tau_p)^T$ are chosen adaptively bu the data. The basic principle is to use adaptive weights to penalise different coefficients according to the $L_1$ penalty. It is generally a two-stage approach in which an initial estimate is used to find some estimate of the coefficient vector $\Tilde{\Beta}$ and then set $\tau_j = 1/|\beta_j|$. \cref{eqn:adaptive-lasso} can then be reformulated as
+
+\begin{equation}\label{eqn:adaptive-lasso-reform}
+    \hat\Beta^{alasso}(\lambda,\Tilde{\Beta})=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\frac{|\beta_j|}{|\Tilde{\beta}_j|}.
+\end{equation}
+
+Any consistent estimator of $\Tilde{\Beta}$ can be used; Zhang and Lu \fcite{zhang2007adaptive} suggested using the standard maximum partial likelihood estimator for simplicity, but other consistent estimators like the normal LASSO can also be used.
+
+Other adaptations can be made quite easily to the model such that $\Tau(\Beta)$ is any non-increasing function, for example a third hyper-parameter can be added to the model to allow $\tau_1/|\beta_j|^\alpha$. This results in the optimisation problem formulated as 
+
+\begin{equation}\label{eqn:adaptive-lasso-triple}
+    \hat\Beta^{alasso}(\lambda,\Tilde{\Beta},\alpha)=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\frac{|\beta_j|}{|\Tilde{\beta}_j|^\alpha}.
+\end{equation}
+
+Adaptive LASSO can be implemented using the \textbf{glmnet} package by Friedman et al \fcite{friedman2011glmnet}. In the first stage, estimate $\Tilde{\Beta}$ using LASSO. Then use the \emph{penalty.factor} input to set the adaptive weights of stage two and again fit using the LASSO. This will give the adaptive LASSO method solved in both stages using efficient coordinate descent.
+
+\iffalse
 \subsubsection{Adaptive Elastic Net}
 %Zou & Zhang 2009
+%https://arxiv.org/pdf/1507.06371.pdf
+\fi
+
 \subsubsection{Spike-and-Slab LASSO}
 \subsubsection{Group LASSO}
 %Meier et al 2008
