@@ -673,12 +673,33 @@ The LASSO, as the name implies, simultaneously applies shrinkage to it's include
 
 \subsubsection{Ridge Regression}
 
--background
--equations
--explanation of shrinkage but not selection
--comparison of ridge and lasso
--show and explain p graphs
--advantages and disadvantages
+The $L_2$-norm penalty for ridge regression is usually attributed to Hoerl and Kennard \fcite{hoerl1970ridge}. The two forms of the problem are given by
+
+\begin{align}
+    \hat\Beta^{ridge} =\argmin_{\Beta} -l(\Beta;\x)\;\;\textrm{subject to}\;\;\Vert\Beta\Vert_2^2\leq t,\label{eqn:ridge-contstrained}\\
+    \hat\Beta^{ridge} = \argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\Vert\beta_j\Vert_2^2\Big)\label{eqn:ridge-penalised}.
+\end{align}
+
+As with the LASSO, the two problems are equivalent because of the convexity of the problem, i.e. for any $t\geq 0$ and solution $\hat\Beta^{ridge}$ in \cref{eqn:ridge-contstrained}, there is a value of $\lambda\geq0$ such that $\hat\Beta^{ridge}$ also solves \cref{eqn:ridge-penalised}.
+
+%SOURCE: add source for predictive accuracy studies and the overfitting caused by large coefficients
+Ridge regression has been seen in multiple studies to be very accurate in prediction. It tackles the problem overfitting by shrinking the coefficients towards zero. The models produced are generally hard to interpret if the number of measured covariates is high because the coefficients are never shrunken to exactly zero.
+
+Consider the ridge and lasso penalties. They can be visualised as follows:
+
+\begin{figure}[h!]
+  \includegraphics[width=\textwidth]{lasso-ridge}
+  \caption{Estimation picture for the LASSO (left) and ridge regression(right) (from Hastie et al \fcite{hastie2009elements}}
+  \label{fig:lasso-ridge}
+\end{figure}
+
+\Cref{fig:lasso-ridge} is a redrawing of a diagram dating back to Tibshirani \fcite{tibshirani1996regression}. The contours show the error and constraint functions and the shaded areas show the regions represented by the $L_1$-norm and $L_2$-norm respectively. On the left $|\beta_1|+|\beta_2|\leq t$ and on the right $\beta_1^2+\beta_2^2\leq t^2$. It can be seen in the diagram that the LASSO intercepts the constraint function along the $\beta_2$ axis, whereas the ridge regression intercepts the same contour at some positive value of both $\beta_1$ and $\beta_2$. This follows the explanation that the LASSO promotes a sparse solution as the estimator $\hat\Beta^{lasso}$ will have $\beta_1=0$ in this case. Thinking intuitively about the norm functions and their corresponding shapes given in \cref{fig:unit-circles}, it is obvious why $p\leq 1$ is a requirement to produce sparse solutions.
+
+\begin{figure}[h!]
+  \includegraphics[width=\textwidth]{unit-circles}
+  \caption{Unit circles of the Minkowski Distance in 2d with varying $p$ (from Urquiza et al \fcite{urquiza2015empirical}}
+  \label{fig:unit-circles}
+\end{figure}
 
 \subsection{Bayesian Priors}
 \subsubsection{Non-local priors}
