@@ -414,7 +414,7 @@ For further discussion on time-dependent coefficients, both step and continuous 
 Andersen and Gill \fcite{andersen-gill-82} "discuss how this model can be extended to a model where covariate processes have a proportional effect on the intensity process of a multivariate counting process. This permits a statistical regression analysis of the intensity of a recurrent event allowing for complicated censoring patterns and time dependent covariates." I will not discuss the workings of the paper here, but it shows that the Cox model can be extended to indeed work with time-dependent covariates, time-dependent stratification and multiple events per subject. 
 
 \newpage
-\part{Variable Selection}
+\part{Variable Selection}\label{prt:variable-selection}
 
 It is often the case that not every measured covariate is in the true model. At first glance, one would be forgiven for thinking that the best model would be found fitting a model containing all covariates to the data. Logically this is using all of the information available to produce the best model possible. The problem with this approach is a phenomenon called 'overfitting'.
 
@@ -886,13 +886,13 @@ The penalty function of the adaptive LASSO is given by
 The estimator as defined by Zhang and Lu \fcite{zhang2007adaptive} is then given generally by
 
 \begin{equation}\label{eqn:adaptive-lasso}
-    \hat\Beta^{alasso}(\lambda,\Tau)=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p|\beta_j|\tau_j.
+    \hat\Beta^{alasso}(\lambda,\Tau)=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p|\beta_j|\tau_j\Big).
 \end{equation}
 
 The positive weights $\Tau=(\tau_1,\ldots,\tau_p)^T$ are chosen adaptively bu the data. The basic principle is to use adaptive weights to penalise different coefficients according to the $L_1$ penalty. It is generally a two-stage approach in which an initial estimate is used to find some estimate of the coefficient vector $\Tilde{\Beta}$ and then set $\tau_j = 1/|\beta_j|$. \cref{eqn:adaptive-lasso} can then be reformulated as
 
 \begin{equation}\label{eqn:adaptive-lasso-reform}
-    \hat\Beta^{alasso}(\lambda,\Tilde{\Beta})=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\frac{|\beta_j|}{|\Tilde{\beta}_j|}.
+    \hat\Beta^{alasso}(\lambda,\Tilde{\Beta})=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\frac{|\beta_j|}{|\Tilde{\beta}_j|}\Big).
 \end{equation}
 
 Any consistent estimator of $\Tilde{\Beta}$ can be used; Zhang and Lu \fcite{zhang2007adaptive} suggested using the standard maximum partial likelihood estimator for simplicity, but other consistent estimators like the normal LASSO can also be used.
@@ -900,7 +900,7 @@ Any consistent estimator of $\Tilde{\Beta}$ can be used; Zhang and Lu \fcite{zha
 Other adaptations can be made quite easily to the model such that $\Tau(\Beta)$ is any non-increasing function, for example a third hyper-parameter can be added to the model to allow $\tau_1/|\beta_j|^\alpha$. This results in the optimisation problem formulated as 
 
 \begin{equation}\label{eqn:adaptive-lasso-triple}
-    \hat\Beta^{alasso}(\lambda,\Tilde{\Beta},\alpha)=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\frac{|\beta_j|}{|\Tilde{\beta}_j|^\alpha}.
+    \hat\Beta^{alasso}(\lambda,\Tilde{\Beta},\alpha)=\argmin_{\Beta}\Big(-l(\Beta;\x)+\lambda\sum_{j=1}^p\frac{|\beta_j|}{|\Tilde{\beta}_j|^\alpha}\Big).
 \end{equation}
 
 Adaptive LASSO can be implemented using the \textbf{glmnet} package by Friedman et al \fcite{friedman2011glmnet}. In the first stage, estimate $\Tilde{\Beta}$ using LASSO. Then use the \emph{penalty.factor} input to set the adaptive weights of stage two and again fit using the LASSO. This will give the adaptive LASSO method solved in both stages using efficient coordinate descent.
@@ -909,13 +909,15 @@ Adaptive LASSO can be implemented using the \textbf{glmnet} package by Friedman 
 \subsubsection{Adaptive Elastic Net}
 %Zou & Zhang 2009
 %https://arxiv.org/pdf/1507.06371.pdf
-\fi
 
 \subsubsection{Spike-and-Slab LASSO}
+%https://repository.upenn.edu/cgi/viewcontent.cgi?article=1629&context=statistics_papers
 \subsubsection{Group LASSO}
 %Meier et al 2008
+%Papers are saved
+%https://pubmed.ncbi.nlm.nih.gov/28472220/
+%https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-019-2656-1
 
-\subsubsection{Sparse-Group LASSO}
 
 \subsubsection{Local Quadratic Approximation}
 %Fan & Li 2001
@@ -924,16 +926,29 @@ Adaptive LASSO can be implemented using the \textbf{glmnet} package by Friedman 
 \subsubsection{Firth's Penalised Likelihood}
 %http://finzi.psych.upenn.edu/library/coxphf/html/coxphf.html
 
-\part{Simulation Study}
-- Convergence
-- Model Stability
+\fi
 
+\part{Simulation Studies}
 
+Simulation studies are a hugely popular statistical method for testing proposed methods. Generally, data is generated in accordance with a given specification, and the proposed methods are tested on the data. 
+
+In this part of the thesis, I aim to compare some of the variable selection methods I spoke about in \cref{prt:variable-selection}. Here are the methods I will be testing and the packages which implement time.
+
+\section{Generating Data}
+
+\section{Packages Being Used}
 - BeSS
 - bestsubset
 - My.stepwise.coxph
 - glmnet
 - ncvreg
+
+\section{Methods of Evaluation}
+
+\section{Study 1 - }
+- Convergence
+- Model Stability
+
 
 \iffalse
 
