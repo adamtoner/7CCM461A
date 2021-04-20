@@ -46,15 +46,41 @@ A common technique in Bayesian statistics is to find the Maximum A Posteriori Pr
     \hat\Beta_{MAP}(data) &= \argmax_{\Beta} f(\Beta|data) = \argmax_{\Beta} f(data|\Beta)g(\Beta)\label{map}
 \end{align}
 
-\section{Gibbs Sampling}
+%\section{Gibbs Sampling}
 %https://www.tandfonline.com/doi/abs/10.1080/01621459.1993.10476353?src=recsys
 
 \section{Bias-Variance Tradeoff}\label{sec:bias-variance}
 
-\section{Convex Functions}
+%\section{Convex Functions}
 
-\section{Signal-to-Noise Ratio}
+\section{Signal-to-Noise Ratio}\label{app:snr}
 
-Realistic signal to noise ratio %https://arxiv.org/pdf/1707.08692.pdf
+This section is based on the explanation by Hastie et al \fcite{hastie2017extended}, adapted to fit the notation used in this thesis. The signal to noise ratio is defined to be
+
+\begin{equation}
+    SNR = \frac{var(f[\z_0])}{var(\epsilon_0)},
+\end{equation}
+
+where $(t_0,\z_0,\delta_0)\in\mathbb{R}^p\times\mathbb{R}\times\{0,1\}$ is a given subject, $f(\z_0=\mathbb{E}(t_0|\z_0)$ and $\epsilon_0 = t_0-f(\z_0)$. Basically, $t_0$ is the actual failure time and $f(\z_0)$ gives the expected failure time given the covariate vector. Considering $f(\z_0)$ gives the expected failure time, $\epsilon_0$ gives the noise of the measurements, i.e. the unexplained variance in the data.
+
+Let a function $g$ be trained on the $n$ samples of the data $(t_i, \z_i, \delta_i)$, for $i=1,\ldots,n$ that are i.i.d to $(t_0, \z_0, \delta_0)$. The associated proportion of variance explained (PVE) of the given prediction function $g$ is defined as
+
+\begin{equation}
+    PVE(g)=1-\frac{\mathbb{E}(t_0-g(\z_0))^2}{var(t_0)},
+\end{equation}
+
+which is maximised when $g(\cdot)=f(\cdot)$:
+
+\begin{equation}\label{eqn:maximised-pve}
+    PVE(f)=1-\frac{var(\epsilon_0)}{var(t_0)}=\frac{SNR}{1+SNR}.
+\end{equation}
+
+The second equality of \cref{eqn:maximised-pve} assumed the independence of $\z_0$ and $\epsilon_0$, i.e. it is assumed that the covariates do not affect the distribution of the random unexplained noise, such that $var(t_0)=var(f[\z_0])+var(\epsilon_0)$. Considering the SNR is necessarily nonzero and the PVE is maximised when equal to $\frac{SNR}{1+SNR}$, the range of values bust be
+
+\begin{equation}
+    0<PVE \leq \frac{SNR}{1+SNR}.
+\end{equation}
+
+Clearly the PVE has the upper bound of 1 given by $\lim_{SNR\xrightarrow{}\infty}\frac{SNR}{1+SNR} = 1$. Hastie et al \fcite{hastie2017extended} analysed the PVE to infer realistic values of the SNR. Given that in most real-world cases, a PVE of 0.2 is fairly typical, they found that the SNRs considered by Bertsimas \fcite{bertsimas2016best} were probably too high and so suggested studying SNRs more in a lower range. In their tests, they estimated the SNR using the LASSO which always estimated it slightly below the population SNR.
 
 \end{appendices}

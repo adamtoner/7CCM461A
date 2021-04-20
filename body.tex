@@ -694,7 +694,15 @@ Fan li 2002 [5]
 \subsubsection{Elastic Net}
 \subsubsection{Relaxed LASSO}
 
-The relaxed LASSO was first proposed by Meinshausen \fcite{meinshausen2007relaxed} and then simplified by Hastie et al \fcite{hastie2017extended}.
+The relaxed LASSO was first proposed by Meinshausen \fcite{meinshausen2007relaxed} and then simplified by Hastie et al \fcite{hastie2017extended}. I will define it similarly to them here. Let $\hat\Beta^{lasso}(\lambda)$ be the lasso estimator for the give $\lambda$. Let $A_\lambda$ be the active set - the set of all included covariates - and $\hat\Beta_{A_\lambda}^LS$ be the least squares coefficients by fitting $T$ on $\Z_{A_\lambda}$, where $T$ is the set $\{t_i\forall i=1,\ldots n\}$ and $\Z_{A_\lambda}$ is the submatrix of set of all covariate vectors with only the $A_\lambda$ active covariates. Now let $\hat\Beta^{LS}(\lambda)$ be the $p$-dimensional version, i.e. every covariate is included padded appropriately with zeros. The relaxed LASSO estimator is then given by
+
+\begin{equation}
+    \hat\Beta^{relax}(\lambda,\gamma)=\gamma\hat\Beta^{lasso}(\lambda)+(1-\gamma)\hat\Beta^{LS}(\lambda),
+\end{equation}
+
+with hyperparameters $\lambda\geq0$ and $\gamma\in[0,1]$.
+
+I will not go into more detail here on the workings and properties of the relaxed LASSO, but know it has been found by Hastie et al \fcite{hastie2017extended} that the relaxed LASSO performs as well as LASSO in its preferred low SNR scenarios and performs as well as best subset selection in its preferred high SNR scenarios
 
 \subsubsection{Adaptive LASSO}
 adaptive lasso and it's oracle properties
@@ -799,6 +807,7 @@ blessing of dimensionality
 
 
 - BeSS
+- bestsubset
 - My.stepwise.coxph
 - glmnet
 - 
