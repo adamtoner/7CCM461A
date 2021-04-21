@@ -1,5 +1,5 @@
 \newpage
-\part{The Model}
+\part{The Model}\label{sec:model}
 
 The Proportional Hazards Model is one of the most used statistical techniques in the world. It was introduced by Cox \fcite{cox1972regression} with the aim of extending the results of Kaplan and Meier \fcite{kaplanmeier} to the comparison of life tables and more generally to the incorporation of regression-like arguments into life-table analysis. Interestingly, these two papers are two of the most cited papers in statistics according to Ryan and Woodall \fcite{ryanwoodall}. So why is the Cox model so popular?
 
@@ -973,7 +973,7 @@ Where the method falls down, however is that it does not allow us to vary the co
 
 \section{Specification}\label{sec:spec}
 
-To carry out my simulation studies, I considered a lot of factors which could be varied: number of observations, number of covariates, colinearity of the covariates, levels of censoring, signal-noise-ratio (SNR) (\see \cref{app:snr}), patterns of sparsity, and the size of the covariates.
+To carry out my simulation studies, I considered a lot of factors which could be varied: number of observations, number of covariates, colinearity of the covariates, levels of censoring, signal-noise-ratio (SNR) (see \cref{app:snr}), patterns of sparsity, and the size of the covariates.
 
 I decided to keep constant the censoring at $\approx25\%$ and the number of covariates. In most studies I came across, around 9-10 covariates was commonplace. As such, I have followed the somewhat standard approach and come up with three schemes for the generating coefficient vector:
 
@@ -985,7 +985,7 @@ I decided to keep constant the censoring at $\approx25\%$ and the number of cova
 
 These three schemes will allow me to view the approach of the different methods to the size of the coefficients, the pattern of sparsity, colinearity of variables, and the SNR - scheme 1 has a high signal to noise ratio, scheme 2 has a low signal to noise ratio and scheme 3 is somewhat of a mixture.
 
-For each of the three cases I will test the methods under varying sample size $n\in{50,150,500}$ and colinearity $\rho\in{0.2,0.8}$. Each test will be carries out 100 times and the results calculated according to \cref{sec:methods} below.
+For each of the three cases I will test the methods under varying sample size $n\in{50,150,500}$ and colinearity $\rho\in{0.2,0.8}$. Each test will be carries out 100 times and the results calculated according to \cref{sec:methods} below.\footnote{For the interested party, I have uploaded the specific code used to produce these results to \href{https://github.com/adamtoner/7CCM461A}{https://github.com/adamtoner/7CCM461A}. It seemed moot to add the code to the appendix as none of the methods used here are original.}
 
 \section{Methods of Evaluation}\label{sec:methods}
 
@@ -1008,17 +1008,29 @@ There are many results that could be of interest, but I have chose to focus on s
 
 \Cref{tbl:measurement-spec} gives the measurements to be calculated, and why they are considered. 
 
-\begin{table}[]
+\begin{table}[ht]
     \centering
-    \begin{tabular}{c|c}
+    \begin{tabular}{|p{3cm}|p{8cm}|}
+        \hline
          \textbf{Measurement} & \textbf{Description} \\
-         Average Model Size & This gives the size of the model predicted as an a 
+         \hline
+         Average Model Size & This gives an idea of sparsity, giving the average number of variables included.\\
+         \hline
+         Success Rate & A somewhat niche measurement I have seen in some other comparison studies which is the proportion of the time for which the method gives the right model, i.e. keeps the true covariates and rejects the rest.\\
+         \hline
+         Feature Inclusions / Exclusions & Similar to the success rate and the average size, it give the average proportion of variables which are correctly included, wrongly included, correctly excluded and wrongly excluded.\\
+         \hline
+         Mean Squared Error & This gives a measure of how close the coefficient estimations actually were. It is a good measurement of the predictive accuracy of a method.\\
+         \hline
     \end{tabular}
     \caption{Caption}
     \label{tbl:measurement-spec}
 \end{table}
 
 \section{Results}\label{sec:results}
+
+This section contains all of the results of the simulation studies which will be discussed in \cref{Discussion}.
+
 \begin{table}[H]
     \centering
     \resizebox{\columnwidth}{!}{
@@ -1203,78 +1215,3 @@ There are many results that could be of interest, but I have chose to focus on s
     \caption{(Scheme 3 - One Main Covariate) Method Results}
     \label{tbl:scheme-3-results}
 \end{table}
-
-
-\iffalse
-
-\part{Real-World Example}
-
-\part{Stuff I want to include}
-
-\section{whoops}
-\subsection{Bayesian Priors}
-\subsubsection{Non-local priors}
-Fan li 2002 [5]
-\subsubsection{Shrinkage Priors}
-%The Bayesian Lasso
-\subsubsection{Selection Priors}
-\subsubsection{Grouping Priors}
-\subsubsection{Jeffrey's Priors}
-\subsubsection{g-priors}
-\subsubsection{Mixture Priors}
-
-\section{Resampling}
-%https://benthamopen.com/FULLTEXT/TOPHJ-12-136
-\subsection{Jackknife}
-\subsection{Bootstrapping}
-
-\section{Ensemble Learning Methods}
-%https://en.wikipedia.org/wiki/Ensemble_learning
-%https://reader.elsevier.com/reader/sd/pii/S001048252100038X?token=33FFE1A8567973E72DE5114384E6E21F7B8428BD76771F533C17B3F8801616E60E22FE55694095D76A103BEC24190626&originRegion=eu-west-1&originCreation=20210419113204
-%https://machinelearningmastery.com/bagging-and-random-forest-ensemble-algorithms-for-machine-learning/#:~:text=Bootstrap%20Aggregation%20(or%20Bagging%20for,predictions%20than%20any%20individual%20model.
-%https://www.tandfonline.com/doi/full/10.1080/21642583.2019.1620658
-SVR
-VSEs
-Weak Learner
-Strong Learner
-\subsection{Boosting}
-%https://www.hindawi.com/journals/cmmm/2013/873595/
-%https://towardsdatascience.com/boosting-algorithms-explained-d38f56ef3f30
-\subsection{Model-Based Boosting}
-\subsection{Likelihood-Based Boosting}
-\subsection{Bagging}
-\subsection{Stacking}
-\subsection{Bayes Optimal Classifier}
-\subsection{Bayesian Model Averaging}
-%Bayesian Structure Time Series
-\subsection{Bayesian Model Combination}
-\subsection{Bucket of Models}
-\subsection{Stability Selection}
-%https://www.hindawi.com/journals/cin/2017/2747431/
-
-\section{More Selection Methods}
-
-\subsection{Heirarchical Bayesian Method} 
-%https://pubmed.ncbi.nlm.nih.gov/9147593/
-
-\subsection{SIS}
-%Sure independence screening for ultrahigh dimensional feature space
-%High-dimensional variable selection for Cox’s proportional hazards model
-blessing of dimensionality 
-\subsubsection{ISIS}
-%Ultrahigh dimensional variable selection: beyond the linear model
-
-\section{Hypothesis Testing}
-\subsection{Likelihood-Ratio Test}
-\subsection{Wald Test}
-\subsection{Lagrange Multiplier (Score) Test}
-
-\section{Extended Variable Selection Problems}
-\subsection{Required Covariates}
-\subsection{Missing Covariates}
-\subsection{Ultrahigh Dimensionality}
-\subsection{Associated / colinear Covariates}
-\subsection{Case-Cohort Studies}
-%Variable selection for case-cohort studies with failure time outcome - Ni et al 2016
-
-\fi

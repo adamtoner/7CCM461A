@@ -1,11 +1,56 @@
 \newpage
-\part{Discussion}
-\section{Conclusion}
+\part{Discussion}\label{Discussion}
+
+Firstly look at ridge regression, it is abundantly clear from the results that the $L_2$ penalty does not produce a sparse solution in any case. Not once in all of the simulations was a single subject rejected. Considering 1,800 trials were carried out, this is fairly conclusive. Instead, consider the MSE of the method. Despite most literature regarding penalized likelihood praising ridge regression for its predictive accuracy, it can be seen from our results that it almost uniformly performs the worst of the methods. One explanation could be that ridge regression prefers higher-dimensionality such as most real-world data, but more likely it is due to the inherent sparsity of the coefficient vectors used. All of the other methods used are praised for promoting sparsity and so ridge which tends to shrink the coefficients towards one another is heavily penalised by the specification here. 
+
+Comparing the LASSO and elastic net penalties, recall the purpose of the elastic net. The elastic net was introduced to combat one of the downfalls of LASSO, that is, it's trouble dealing with colinearity. Once again, the results from the simulation study are not necessarily what one would expect. Again this may be due to the idealised circumstances of our proposed sparsity, or it could be due to the way that we defined the covariance matrix such that every variable is colinear. The elastic net tends to help when a some variables are colinear when the LASSO would only select one of them. The colinearity between covariates in and out of the model will also punish the elastic net as it will try harder to keep the false covariates in the model. Note as well that the elastic net used in this study used $\alpha=0.5$ as a standard introduction to the method. It is possible that cross validation across $\alpha$ or even simply choosing a higher $\alpha$ such as 0.8 using purely Bayesian reasoning my give a better model.
+
+I will discuss the relaxed LASSO and the adaptive LASSO together as they both try to 'unbias' the LASSO. The relaxed LASSO performs similarly to the LASSO across the board here so there is not a huge pile to consider. I have mentioned some adaptations of the experiment in \cref{sec:improvements} which could give a better comparison of the two under different situations. The adaptive LASSO on the other hand works exactly as expected. With increasing $n$, the oracle property can be seen at work as the adaptive LASSO is one of, if not the, best penalty function in terms of the MSE of the estimator for every test carried out for $n\geq150$. It also produces one of the best estimators in terms of success rate and average size of the model across all three schemes.
+
+Lastly is the SCAD and MCP penalties. A note from the implementation of these methods: I discussed in \cref{sec:hyper-parameter-estimation} about the use of $\lambda_1se$ as opposed to $\lambda_{min}$ to give a better model. There was no implementation allowing for the choice of $\lambda_1se$ for SCAD and MCP and this $\lambda_{min}$ was used in place - it is possible this punished the methods. In terms of MSE, both of the predictors produce estimators which perform very well with increasing $n$. The only case in which this didn't happen was in scenario 2 with many small covariates with high covariance. They can be forgiven for this considering they were introduced so that the \emph{large} covariates were not penalised too harshly. The scenario in which they performed best in comparison to the other estimators was scheme one with high variance in which they had a hugely better success rate while keeping a good MSE.
+
+\section{Possible Improvements}\label{sec:improvements}
+
+One way I would change the experiment if repeated is to change the values of $n$ for which the models were simulated. It is clear the the 50 observation model did not produce a huge amount of meaning insight into the model. In a future study, I would try $n\in{100,300,750}$. Whilst toying with the simulations during setup, I ran a couple of trials at $n=750$ and found the unbiasedness of some of the estimators to be quite interesting. Unfortunately, I could not afford the time of computation and so had to reduce the number observations per trial.
+
+I has also attempted to include in my simulations the Stepwise Variable Selection as described by \cref{alg:my.stepwise.coxph}. A slightly (mostly superficially) altered version of the method suggested by Hu \fcite{hu2017my} was implemented and seemed to perform well for Scheme 1. An recurring error then interrupted further simulations which I am yet to solve and so I have excluded it from the results for consistency of the results tables and because I am unable to confirm the legitimacy of the results obtained from an obviously erroneous implementation of the algorithm.
+
+Another method I was excited to implement was the \textbf{bestsubset} package by Tibshirani \fcite{hastie2017bestsubset} based on the work from Bertsimas et al \fcite{bertsimas2016best}. It is the method previously discussed for best subset selection in regression which uses new advances in MIO to speed up the process. However, as of writing this, the adaptation of the methods to censored survival data has not yet been made and so could not be used. A suggestion for similar studies is the \textbf{BeSS} package as implemented by Wen et al \fcite{wen2021bess} which also solves the best subset selection problem.
+
+It would also be interesting consider testing a more varied set of $\B$. They were chosen here to be comparable to other studies, but as seen in the discussion of ridge regression, other patterns of sparsity could provide good results and an insight to when the methods can be appropriately used. These other choices of $\B$ could give a better look into the ideal situation for the relaxed LASSO which performed similarly to the LASSO here. The SNR ratio was relatively high in all three of the Schemes followed, despite my thinking that scheme 2 might shine some light on how the relaxed lasso would work.
+
+Different covariance matrices could also be used to further investigate the advantages of the the elastic net when comparing it to the LASSO. The uniform colinearity across the board ended up working to its detriment which in itself was a surprising result implying that there is some optimal pattern of covariance for the elastic net.
 
 \section{Further Research}
 
-Stepwise Variable Selection as described by \cref{alg:my.stepwise.coxph} will be tested using the hyper-parameters for significance levels of entry and exit suggested by Hu \fcite{hu2017my}.
+There are a huge number of areas in which this topic can be and has been expanded upon. One of the sections which were contenders for this paper were the study of variable selection in a Bayesian framework:
+\begin{itemize}
+    \item Local vs global priors
+    \item Mixture priors
+    \item Shrinkage and selection priors
+    \item The spike-and-slab lasso
+\end{itemize}
 
-For best subset selection in regression, it would seem preferable to use the \textbf{bestsubset} package by Tibshirani \fcite{hastie2017bestsubset} based on the work from Bertsimas et al \fcite{bertsimas2016best} which uses new advances in MIO to speed up the process. As of writing this, the adaptation of the methods to censored survival data has not yet been made and so \textbf{BeSS} as implemented by Wen et al \fcite{wen2021bess} is used instead.
+One could also consider resampling techniques such as bootstrapping and the jackknife or consider the copious amounts of literature on ensemble learning methods such as: SVRs, weak and strong learners, boosting, bagging, Bayesian model combination. Other iterative methods for regularisation such as SIS and ISIS could also be studied and all of this is before mentioning the numerous other penalty functions which have been suggested.
 
-Ensemble and bayesian techniques.
+An interesting and related topic which I have not discussed are hypothesis and confidence interval methods such as the likelihood-ratio test, the Wald test and the Lagrange multiplier (score) test. Some of these were mentioned in passing in the paper, but can be used to make variable selection in very simple problems.
+
+The development of more variable selection methods is normally driven by new and existing extensions of the problem considered here. To name but a few:
+
+\begin{itemize}
+    \item Required covariates
+    \item Missing covariates
+    \item Variable selection in ultra-high dimensionality
+    \item Grouped covariates (which very nearly made the cut for the paper, but I felt it didn't fit well with the other methods discussed)
+    \item Case-Cohort studies and the problem of left-censoring and truncation
+\end{itemize}
+
+\section{Conclusion}
+
+To round off this introduction to variable selection for the Cox Proportional Hazards model, I have achieved most of what I set out to do. \Cref{sec:model} gives a through introduction to the Cox PH model and explains it's challenges and possible extensions. I was then able to give a comprehensive literature review on come of the most commonly used and highly efficient variable selection methods in \cref{prt:variable-selection}. After reading articles, software specifications, vignettes and papers upon papers\footnote{A caveat of having so many individual works is the lack of consistency of notation. I tried my utmost to use the most sensible standard notation throughout this project in an attempt to alleviate one main point of displeasure in reading the literature.}, I gained an appreciation for the expansive literature which has been produced on this topic (despite almost drowning in it). 
+
+It was quite challenging at times to make sense of the categorisation of these methods when reading about them individually, somewhat akin to trying to look at structure of a skyscraper while standing inside its elevator. I hope to have explained the relationship between some of these methods and the driving reasons behind their development in a more friendly way. My goal when approaching this project was to create the resource I wish I had when I started, having never studied survival analysis before.
+
+Being able to see an example of the methods working in the simulation study helps to clarify the distinction between a class of similar sounding likelihood methods. I had intended on looking at fewer methods in the simulation studies and applying them also to real world data such as can be accessed in the \textbf{survival} package in R released by Therneau \fcite{survival-package}. However, after carrying out the simulation studies on LASSO, ridge and elastic net methods, I was interested more so in comparing them to other penalised likelihood methods. I had not yet come across the collective comparison of these methods and so it felt somewhat trivial to repeat the findings of many other papers in apply the same methods to the same example data sets. 
+
+Overall, I thoroughly enjoyed this project. At times I found myself going down the rabbit holes of ultra-high dimensionality problems and back into the founding theory of likelihood methods (finding that everyone with a keyboard on the internet seems to be a Bayesian anyway). I am quite happy with the middle ground I landed upon with this project and I thank you for taking the time to read my ramblings.
