@@ -4,4 +4,8 @@
 
 \section{Further Research}
 
+Stepwise Variable Selection as described by \cref{alg:my.stepwise.coxph} will be tested using the hyper-parameters for significance levels of entry and exit suggested by Hu \fcite{hu2017my}.
+
+For best subset selection in regression, it would seem preferable to use the \textbf{bestsubset} package by Tibshirani \fcite{hastie2017bestsubset} based on the work from Bertsimas et al \fcite{bertsimas2016best} which uses new advances in MIO to speed up the process. As of writing this, the adaptation of the methods to censored survival data has not yet been made and so \textbf{BeSS} as implemented by Wen et al \fcite{wen2021bess} is used instead.
+
 Ensemble and bayesian techniques.
